@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router";
 import { AutoTokenSection } from "./auto-token-section";
 import { FeatureGrid } from "./feature-grid";
 import { Footer } from "./footer";
@@ -19,9 +20,14 @@ function SendIcon() {
 
 export function Landing() {
   const [query, setQuery] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
+    const params = query.trim()
+      ? `?q=${encodeURIComponent(query.trim())}`
+      : "";
+    navigate(`/markets${params}`);
   };
 
   return (
@@ -78,7 +84,7 @@ export function Landing() {
 
         <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2">
           <a
-            href="#markets"
+            href="/markets"
             className="group flex cursor-pointer flex-col items-center gap-2"
           >
             <span className="pixel-sans text-xs tracking-widest text-white/70 uppercase transition-colors group-hover:text-white">

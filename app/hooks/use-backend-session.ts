@@ -6,7 +6,7 @@ import {
   getToken,
   loginWithWallet,
   logout as clearBackendToken,
-} from "../../src/api/autonClient.js";
+} from "../lib/api/autonClient";
 
 function encodeSignature(signature: Uint8Array | string): string {
   if (typeof signature === "string") return signature;

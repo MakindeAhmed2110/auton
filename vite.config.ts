@@ -14,6 +14,20 @@ export default defineConfig(({ mode }) => {
       "import.meta.env.VITE_PRIVY_APP_ID": JSON.stringify(
         env.VITE_PRIVY_APP_ID || env.PRIVY_APP_ID || "",
       ),
+      "import.meta.env.VITE_AUTON_API_URL": JSON.stringify(
+        env.VITE_AUTON_API_URL || "",
+      ),
+      "import.meta.env.VITE_SOLANA_RPC_URL": JSON.stringify(
+        env.VITE_SOLANA_RPC_URL || "",
+      ),
+    },
+    build: {
+      rolldownOptions: {
+        onwarn(warning, warn) {
+          if (warning.code === "INVALID_ANNOTATION") return;
+          warn(warning);
+        },
+      },
     },
   };
 });

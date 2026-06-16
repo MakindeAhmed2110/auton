@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Link } from "react-router";
 import {
   EarnYieldIllustration,
   GuaranteeCapacityIllustration,
@@ -72,6 +73,22 @@ export function FeatureGrid() {
   return (
     <section id="markets" className="bg-black py-12 md:py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
+        <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <h2 className="pixel-serif text-3xl text-white md:text-4xl">
+              Compute derivatives
+            </h2>
+            <p className="pixel-sans mt-3 max-w-xl text-sm text-white/60">
+              Trade forward contracts and capacity commitments on-chain.
+            </p>
+          </div>
+          <Link
+            to="/markets"
+            className="pixel-sans text-sm text-[#80a0c1] transition-colors hover:text-[#80a0c1]/80"
+          >
+            Open marketplace →
+          </Link>
+        </div>
         <div className="flex flex-col gap-4 md:hidden">
           {FEATURES.map((feature) => (
             <div

@@ -1,8 +1,10 @@
+import { Link } from "react-router";
 import { useState } from "react";
 import { LoginButton } from "./login-button";
 
 const NAV_LINKS = [
-  { label: "Markets", href: "#markets" },
+  { label: "Markets", href: "/markets" },
+  { label: "Dashboard", href: "/dashboard" },
   { label: "Docs", href: "#docs" },
 ];
 
@@ -51,13 +53,13 @@ export function Header() {
 
           <div className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.href}
                 className="pixel-sans text-sm tracking-wide text-white/70 transition-colors hover:text-white"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
             <div className="group relative">
               <span className="pixel-sans inline-flex cursor-pointer items-center gap-1 text-sm tracking-wide text-white/70 transition-colors group-hover:text-white">
@@ -128,14 +130,14 @@ export function Header() {
           <div className="mt-2 rounded-2xl border border-white/10 bg-black/95 p-4 md:hidden">
             <div className="flex flex-col gap-3">
               {NAV_LINKS.map((link) => (
-                <a
+                <Link
                   key={link.label}
-                  href={link.href}
+                  to={link.href}
                   className="pixel-sans text-sm tracking-wide text-white/70 transition-colors hover:text-white"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
               {AUTO_LINKS.map((link) => (
                 <a

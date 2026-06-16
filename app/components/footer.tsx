@@ -1,18 +1,21 @@
+import { Link } from "react-router";
+
 const FOOTER_LINKS = {
   Product: [
-    { label: "Markets", href: "#markets" },
-    { label: "Docs", href: "#docs" },
-    { label: "API", href: "#docs" },
+    { label: "Markets", href: "/markets", external: false },
+    { label: "Dashboard", href: "/dashboard", external: false },
+    { label: "Docs", href: "#docs", external: false },
+    { label: "API", href: "/dashboard", external: false },
   ],
   "$AUTO": [
-    { label: "Staking", href: "/staking" },
-    { label: "Treasury", href: "/treasury" },
-    { label: "Token", href: "#auto" },
+    { label: "Staking", href: "/staking", external: false },
+    { label: "Treasury", href: "/treasury", external: false },
+    { label: "Token", href: "/#auto", external: false },
   ],
   Resources: [
-    { label: "Blog", href: "#" },
-    { label: "X", href: "https://x.com" },
-    { label: "Telegram", href: "https://t.me" },
+    { label: "Blog", href: "#", external: false },
+    { label: "X", href: "https://x.com", external: true },
+    { label: "Telegram", href: "https://t.me", external: true },
   ],
 };
 
@@ -22,9 +25,9 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div>
-            <a href="/" className="pixel-serif-logo text-lg text-white">
+            <Link to="/" className="pixel-serif-logo text-lg text-white">
               AUTON
-            </a>
+            </Link>
             <p className="pixel-sans mt-3 max-w-[220px] text-xs text-white/40">
               The derivatives layer for decentralized compute.
             </p>
@@ -42,18 +45,35 @@ export function Footer() {
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                {links.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    className="pixel-sans text-sm text-white/60 transition-colors hover:text-white"
-                    {...(link.href.startsWith("http")
-                      ? { target: "_blank", rel: "noopener noreferrer" }
-                      : {})}
-                  >
-                    {link.label}
-                  </a>
-                ))}
+                {links.map((link) =>
+                  link.external ? (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="pixel-sans text-sm text-white/60 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </a>
+                  ) : link.href.startsWith("#") || link.href.startsWith("/#") ? (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      className="pixel-sans text-sm text-white/60 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      key={link.label}
+                      to={link.href}
+                      className="pixel-sans text-sm text-white/60 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </Link>
+                  ),
+                )}
               </div>
             </div>
           ))}

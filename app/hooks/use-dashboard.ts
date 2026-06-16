@@ -1,31 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
+import type { DashboardStats } from "../lib/api/autonClient";
 import {
   createApiKey,
   fetchDashboardStats,
   getToken,
-} from "../../src/api/autonClient.js";
-
-export type DashboardStats = {
-  apiKeys: {
-    id: string;
-    name: string;
-    key_prefix: string;
-    active: boolean;
-    created_at: string;
-  }[];
-  computeBalances: {
-    id: string;
-    modelTier: string;
-    tokenBalanceRemaining: string;
-    expiryDate: string;
-    isExpired: boolean;
-  }[];
-  staking: {
-    totalStakedAuto: string;
-    claimableUsdcYield: string;
-    stakeCount: number;
-  };
-};
+} from "../lib/api/autonClient";
 
 export function useDashboard(enabled: boolean) {
   const [data, setData] = useState<DashboardStats | null>(null);
