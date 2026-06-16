@@ -1,7 +1,40 @@
-.DS_Store
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment
 .env
-/node_modules/
+.env.*
+!.env.example
+
+# Build output
+build/
+dist/
 
 # React Router
-/.react-router/
-/build/
+.react-router/
+
+# Vite
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+
+# Test / coverage
+coverage/
