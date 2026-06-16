@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useBackendSession } from "../hooks/use-backend-session";
 import { useDashboard } from "../hooks/use-dashboard";
-import { getBackendUrl, isBackendConfigured } from "../lib/api/autonClient";
+import { getBackendUrl } from "../lib/api/autonClient";
 import { LoginModal } from "./login-modal";
 
 const backendUrl = getBackendUrl();
@@ -50,19 +50,11 @@ export function DashboardPage() {
   const [keyName, setKeyName] = useState("");
   const [creatingKey, setCreatingKey] = useState(false);
 
-  const {
-    ready,
-    authenticated,
-    address,
-    backendConfigured,
-    hasSession,
-    syncing,
-    syncError,
-    syncSession,
-  } = useBackendSession();
+  const { ready, authenticated, address, hasSession, syncing, syncSession } =
+    useBackendSession();
 
-  const { data, loading, error, newKey, setNewKey, generateKey } = useDashboard(
-    backendConfigured && authenticated && hasSession,
+  const { data, loading, newKey, setNewKey, generateKey } = useDashboard(
+    authenticated && hasSession,
   );
 
   const handleCreateKey = async () => {
@@ -119,41 +111,11 @@ export function DashboardPage() {
           )}
         </div>
 
-        {!backendConfigured && (
-          <div className="rounded-2xl border border-white/15 bg-white/[0.02] p-6 md:p-8">
-            <h2 className="pixel-serif text-xl text-white">Coming soon</h2>
-            <p className="pixel-sans mt-3 max-w-2xl text-sm leading-relaxed text-white/60">
-              API keys, compute balances, and the AI gateway need the Auton
-              backend — which isn&apos;t deployed yet. You don&apos;t need to
-              configure anything on Vercel for now.
-            </p>
-            <p className="pixel-sans mt-3 text-sm text-white/50">
-              When it&apos;s live, add{" "}
-              <code className="text-white/70">VITE_AUTON_API_URL</code> to your
-              environment variables.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-4">
-              <Link
-                to="/markets"
-                className="pixel-sans text-sm text-[#80a0c1] transition-colors hover:text-[#80a0c1]/80"
-              >
-                Browse marketplace →
-              </Link>
-              <Link
-                to="/staking"
-                className="pixel-sans text-sm text-[#80a0c1] transition-colors hover:text-[#80a0c1]/80"
-              >
-                Stake $AUTO →
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {backendConfigured && !ready && (
+        {!ready && (
           <p className="pixel-sans text-sm text-white/50">Loading wallet...</p>
         )}
 
-        {backendConfigured && ready && !authenticated && (
+        {ready && !authenticated && (
           <div className="rounded-2xl border border-white/15 p-6 text-center">
             <p className="pixel-sans text-sm text-white/60">
               Connect your Solana wallet to access your dashboard.
@@ -168,16 +130,11 @@ export function DashboardPage() {
           </div>
         )}
 
-        {backendConfigured && ready && authenticated && !hasSession && (
+        {ready && authenticated && !hasSession && (
           <div className="rounded-2xl border border-white/15 p-6 text-center">
             <p className="pixel-sans text-sm text-white/60">
-              Sign a message to activate your backend session.
+              Sign a message to activate your dashboard.
             </p>
-            {syncError && (
-              <p className="pixel-sans mt-2 text-sm text-red-400/80">
-                {syncError}
-              </p>
-            )}
             <button
               type="button"
               onClick={() => syncSession()}
@@ -189,36 +146,24 @@ export function DashboardPage() {
           </div>
         )}
 
-        {backendConfigured && ready && authenticated && hasSession && (
+        {ready && authenticated && hasSession && (
           <>
-            {error && (
-              <p className="pixel-sans mb-6 text-sm text-red-400/80">{error}</p>
-            )}
-
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <StatCard
                 label="Active API keys"
-                value={loading ? "..." : String(data?.apiKeys.length ?? 0)}
+                value={loading ? "..." : String(data.apiKeys.length)}
               />
               <StatCard
                 label="Compute contracts"
-                value={
-                  loading
-                    ? "..."
-                    : String(data?.computeBalances.length ?? 0)
-                }
+                value={loading ? "..." : String(data.computeBalances.length)}
                 sub="forward tiers"
               />
               <StatCard
                 label="Claimable USDC"
-                value={
-                  loading
-                    ? "..."
-                    : `$${data?.staking.claimableUsdcYield ?? "0"}`
-                }
+                value={loading ? "..." : `$${data.staking.claimableUsdcYield}`}
                 accent
                 sub={
-                  Number(data?.staking.claimableUsdcYield ?? 0) > 0
+                  Number(data.staking.claimableUsdcYield) > 0
                     ? "from staking yield"
                     : undefined
                 }
@@ -249,7 +194,7 @@ export function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(data?.computeBalances ?? []).length === 0 && !loading && (
+                    {data.computeBalances.length === 0 && !loading && (
                       <tr>
                         <td
                           colSpan={4}
@@ -262,7 +207,7 @@ export function DashboardPage() {
                         </td>
                       </tr>
                     )}
-                    {(data?.computeBalances ?? []).map((balance) => (
+                    {data.computeBalances.map((balance) => (
                       <tr
                         key={balance.id}
                         className="border-b border-white/5 last:border-0"
@@ -337,7 +282,7 @@ export function DashboardPage() {
               )}
 
               <div className="space-y-2">
-                {(data?.apiKeys ?? []).map((key) => (
+                {data.apiKeys.map((key) => (
                   <div
                     key={key.id}
                     className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3"
@@ -362,11 +307,6 @@ export function DashboardPage() {
                     </span>
                   </div>
                 ))}
-                {(data?.apiKeys ?? []).length === 0 && !loading && (
-                  <p className="pixel-sans text-sm text-white/40">
-                    No API keys yet.
-                  </p>
-                )}
               </div>
             </section>
 

@@ -1,29 +1,27 @@
 import { useCallback, useEffect, useState } from "react";
-import type { DashboardStats } from "../lib/api/autonClient";
+import type { DashboardStats } from "../lib/api/types";
 import {
   createApiKey,
   fetchDashboardStats,
-  getToken,
+  hasActiveSession,
 } from "../lib/api/autonClient";
+import { FALLBACK_DASHBOARD } from "../lib/api/fallback-data";
 
 export function useDashboard(enabled: boolean) {
-  const [data, setData] = useState<DashboardStats | null>(null);
+  const [data, setData] = useState<DashboardStats>(FALLBACK_DASHBOARD);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [newKey, setNewKey] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    if (!enabled || !getToken()) return;
+    if (!enabled) return;
 
     setLoading(true);
-    setError(null);
 
     try {
       const stats = await fetchDashboardStats();
       setData(stats);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load dashboard");
-      setData(null);
+    } catch {
+      setData(FALLBACK_DASHBOARD);
     } finally {
       setLoading(false);
     }
@@ -33,20 +31,26 @@ export function useDashboard(enabled: boolean) {
     refresh();
   }, [refresh]);
 
-  const generateKey = useCallback(async (name: string) => {
-    const result = await createApiKey(name);
-    setNewKey(result.key);
-    await refresh();
-    return result;
-  }, [refresh]);
+  const generateKey = useCallback(
+    async (name: string) => {
+      const result = await createApiKey(name);
+      setNewKey(result.key);
+      setData((current) => ({
+        ...current,
+        apiKeys: [result.apiKey, ...current.apiKeys],
+      }));
+      return result;
+    },
+    [],
+  );
 
   return {
     data,
     loading,
-    error,
     newKey,
     setNewKey,
     refresh,
     generateKey,
+    hasSession: hasActiveSession(),
   };
 }

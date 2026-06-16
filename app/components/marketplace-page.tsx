@@ -7,10 +7,8 @@ import {
   hedgeSavingsPercent,
   type ContractType,
 } from "../config/marketplace";
-import { useSolanaWallet } from "../hooks/use-solana-wallet";
 import { useBackendSession } from "../hooks/use-backend-session";
 import { useDashboard } from "../hooks/use-dashboard";
-import { isBackendConfigured } from "../lib/api/autonClient";
 import { LoginModal } from "./login-modal";
 
 const TYPE_FILTERS: { id: "all" | ContractType; label: string }[] = [
@@ -126,12 +124,8 @@ export function MarketplacePage() {
   const [typeFilter, setTypeFilter] = useState<"all" | ContractType>("all");
   const [loginOpen, setLoginOpen] = useState(false);
 
-  const { authenticated } = useSolanaWallet();
-  const { hasSession } = useBackendSession();
-  const backendConfigured = isBackendConfigured();
-  const { data } = useDashboard(
-    backendConfigured && authenticated && hasSession,
-  );
+  const { authenticated, hasSession } = useBackendSession();
+  const { data } = useDashboard(authenticated && hasSession);
 
   const balanceByTier = useMemo(() => {
     const map = new Map<string, string>();
@@ -243,7 +237,7 @@ export function MarketplacePage() {
               key={contract.tier}
               contract={contract}
               userBalance={
-                backendConfigured && authenticated && hasSession
+                authenticated && hasSession
                   ? balanceByTier.get(contract.tier) ?? "0"
                   : undefined
               }

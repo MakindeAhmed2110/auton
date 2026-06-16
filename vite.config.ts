@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
         env.VITE_PRIVY_APP_ID || env.PRIVY_APP_ID || "",
       ),
       "import.meta.env.VITE_AUTON_API_URL": JSON.stringify(
-        env.VITE_AUTON_API_URL || "",
+        env.VITE_AUTON_API_URL || "https://api.autonaisol.xyz",
       ),
       "import.meta.env.VITE_SOLANA_RPC_URL": JSON.stringify(
         env.VITE_SOLANA_RPC_URL || "",

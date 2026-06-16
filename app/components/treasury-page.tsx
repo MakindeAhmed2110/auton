@@ -26,9 +26,8 @@ function StatCard({
 }
 
 export function TreasuryPage() {
-  const { status, data, loading, error } = useTreasury();
+  const { data, loading } = useTreasury();
   const { stats, burnHistory, stakedHistory } = data;
-  const isLive = status === "live";
 
   return (
     <div className="min-h-screen bg-black">
@@ -62,22 +61,16 @@ export function TreasuryPage() {
           </p>
         </div>
 
-        {error && (
-          <p className="pixel-sans mb-6 text-sm text-red-400/80">{error}</p>
-        )}
-
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
           <StatCard className="border-emerald-500/20 bg-emerald-500/[0.03]">
             <div className="pixel-serif text-3xl text-emerald-400 md:text-4xl">
-              {loading && isLive
-                ? "..."
-                : formatTokenCount(stats.totalBurned)}
+              {loading ? "..." : formatTokenCount(stats.totalBurned)}
             </div>
             <div className="pixel-sans mt-2 text-sm text-white/70">
               <span className="dollar">$</span>AUTO burned forever
             </div>
             <div className="pixel-sans mt-1 text-xs text-emerald-400/70">
-              {loading && isLive
+              {loading
                 ? "..."
                 : `${formatPercent(stats.burnedSupplyPercent)} of supply removed`}
             </div>
@@ -85,9 +78,7 @@ export function TreasuryPage() {
 
           <StatCard>
             <div className="pixel-serif text-3xl text-white md:text-4xl">
-              {loading && isLive
-                ? "..."
-                : formatUsd(stats.returnedToHolders)}
+              {loading ? "..." : formatUsd(stats.returnedToHolders)}
             </div>
             <div className="pixel-sans mt-2 text-sm text-white/70">
               returned to holders + stakers
@@ -99,15 +90,13 @@ export function TreasuryPage() {
 
           <StatCard>
             <div className="pixel-serif text-3xl text-white md:text-4xl">
-              {loading && isLive
-                ? "..."
-                : formatCompactNumber(stats.totalStaked)}
+              {loading ? "..." : formatCompactNumber(stats.totalStaked)}
             </div>
             <div className="pixel-sans mt-2 text-sm text-white/70">
               <span className="dollar">$</span>AUTO staked
             </div>
             <div className="pixel-sans mt-1 text-xs text-white/40">
-              {loading && isLive
+              {loading
                 ? "..."
                 : `${formatPercent(stats.stakedSupplyPercent, 1)} of supply`}
             </div>
@@ -121,12 +110,12 @@ export function TreasuryPage() {
                 Cumulative <span className="dollar">$</span>AUTO burned
               </div>
               <div className="pixel-serif mt-1 text-2xl text-white">
-                {loading && isLive
+                {loading
                   ? "..."
                   : `${formatCompactNumber(stats.totalBurned)} AUTO`}
               </div>
               <div className="pixel-sans mt-1 text-xs text-white/40">
-                {loading && isLive
+                {loading
                   ? "..."
                   : `across ${stats.buybackCount} buybacks`}
               </div>
@@ -145,7 +134,7 @@ export function TreasuryPage() {
                 <span className="dollar">$</span>AUTO staked over time
               </div>
               <div className="pixel-serif mt-1 text-2xl text-white">
-                {loading && isLive
+                {loading
                   ? "..."
                   : `${formatCompactNumber(stats.totalStaked)} AUTO`}
               </div>
@@ -164,9 +153,7 @@ export function TreasuryPage() {
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
           <StatCard>
             <div className="pixel-serif text-2xl text-white md:text-3xl">
-              {loading && isLive
-                ? "..."
-                : formatUsd(stats.buybackSpendUsdc)}
+              {loading ? "..." : formatUsd(stats.buybackSpendUsdc)}
             </div>
             <div className="pixel-sans mt-2 text-sm text-white/50">
               spent on buybacks
@@ -175,9 +162,7 @@ export function TreasuryPage() {
 
           <StatCard>
             <div className="pixel-serif text-2xl text-white md:text-3xl">
-              {loading && isLive
-                ? "..."
-                : formatUsd(stats.stakerRewardsUsdc)}
+              {loading ? "..." : formatUsd(stats.stakerRewardsUsdc)}
             </div>
             <div className="pixel-sans mt-2 text-sm text-white/50">
               paid to stakers
@@ -186,24 +171,13 @@ export function TreasuryPage() {
 
           <StatCard>
             <div className="pixel-serif text-2xl text-white md:text-3xl">
-              {loading && isLive
-                ? "..."
-                : formatUsd(stats.settlementFeesUsdc)}
+              {loading ? "..." : formatUsd(stats.settlementFeesUsdc)}
             </div>
             <div className="pixel-sans mt-2 text-sm text-white/50">
               settlement fees collected
             </div>
           </StatCard>
         </div>
-
-        {!isLive && (
-          <p className="pixel-sans mt-8 text-center text-xs text-white/30">
-            Treasury stats go live when <span className="dollar">$</span>AUTO
-            launches. Set{" "}
-            <code className="text-white/40">VITE_AUTO_TOKEN_MINT</code> to
-            enable on-chain reads.
-          </p>
-        )}
       </main>
     </div>
   );

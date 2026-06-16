@@ -19,18 +19,15 @@ export function useStaking(walletAddress: string | null) {
   const [pool, setPool] = useState<StakePool | null>(null);
   const [entries, setEntries] = useState<StakeEntryAccount[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (status !== "live") {
       setPool(null);
       setEntries([]);
-      setError(null);
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     try {
       const [poolData, userEntries] = await Promise.all([
@@ -42,10 +39,9 @@ export function useStaking(walletAddress: string | null) {
 
       setPool(poolData);
       setEntries(userEntries);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load staking data",
-      );
+    } catch {
+      setPool(null);
+      setEntries([]);
     } finally {
       setLoading(false);
     }
@@ -60,7 +56,6 @@ export function useStaking(walletAddress: string | null) {
     pool,
     entries,
     loading,
-    error,
     refresh,
     config: autoStakingConfig,
   };

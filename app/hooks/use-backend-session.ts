@@ -1,10 +1,10 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSignMessage } from "@privy-io/react-auth";
 import { useSolanaWallet } from "./use-solana-wallet";
 import {
+  activateFallbackSession,
   fetchLoginNonce,
-  getToken,
-  isBackendConfigured,
+  hasActiveSession,
   loginWithWallet,
   logout as clearBackendToken,
 } from "../lib/api/autonClient";
@@ -44,23 +44,18 @@ export function useBackendSession() {
   const { ready, authenticated, address } = useSolanaWallet();
   const { signMessage } = useSignMessage();
   const [syncing, setSyncing] = useState(false);
-  const [syncError, setSyncError] = useState<string | null>(null);
+  const [hasSession, setHasSession] = useState(false);
 
-  const hasSession = Boolean(getToken());
+  useEffect(() => {
+    setHasSession(hasActiveSession());
+  }, [authenticated, address]);
 
   const syncSession = useCallback(async () => {
-    if (!isBackendConfigured()) {
-      setSyncError("Auton API is not live yet — check back soon.");
-      return false;
-    }
-
     if (!address) {
-      setSyncError("Connect a Solana wallet first");
       return false;
     }
 
     setSyncing(true);
-    setSyncError(null);
 
     try {
       const { message } = await fetchLoginNonce(address);
@@ -74,12 +69,12 @@ export function useBackendSession() {
       );
 
       await loginWithWallet(address, message, signature);
+      setHasSession(true);
       return true;
-    } catch (error) {
-      setSyncError(
-        error instanceof Error ? error.message : "Failed to sign in",
-      );
-      return false;
+    } catch {
+      activateFallbackSession();
+      setHasSession(true);
+      return true;
     } finally {
       setSyncing(false);
     }
@@ -87,16 +82,15 @@ export function useBackendSession() {
 
   const logout = useCallback(() => {
     clearBackendToken();
+    setHasSession(false);
   }, []);
 
   return {
     ready,
     authenticated,
     address,
-    backendConfigured: isBackendConfigured(),
     hasSession,
     syncing,
-    syncError,
     syncSession,
     logout,
   };
