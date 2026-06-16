@@ -14,8 +14,8 @@ const FOOTER_LINKS = {
   ],
   Resources: [
     { label: "Blog", href: "#", external: false },
-    { label: "X", href: "https://x.com", external: true },
-    { label: "Telegram", href: "https://t.me", external: true },
+    { label: "X", href: "https://x.com/autonai_sol", external: true },
+    { label: "Telegram", href: "https://t.me/autonia_sol", external: true },
   ],
 };
 

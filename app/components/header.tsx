@@ -86,7 +86,7 @@ export function Header() {
 
           <div className="flex flex-1 items-center justify-end gap-3">
             <a
-              href="https://github.com"
+              href="https://github.com/Autonai-sol"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-white/70 transition-colors hover:text-white"
@@ -95,7 +95,7 @@ export function Header() {
               <GitHubIcon />
             </a>
             <a
-              href="https://x.com"
+              href="https://x.com/autonai_sol"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-white/70 transition-colors hover:text-white"
@@ -104,7 +104,7 @@ export function Header() {
               <XIcon />
             </a>
             <a
-              href="https://t.me"
+              href="https://t.me/autonia_sol"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-white/70 transition-colors hover:text-white"

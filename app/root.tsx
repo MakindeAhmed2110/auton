@@ -12,6 +12,8 @@ import { AppProviders } from "./providers";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", href: "/favicon.ico" },
+  { rel: "apple-touch-icon", href: "/logos/apple-touch-icon.png" },
   { rel: "preconnect", href: "https://use.typekit.net" },
   {
     rel: "stylesheet",

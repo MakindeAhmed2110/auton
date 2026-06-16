@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths: true,
     },
     define: {
+      "import.meta.env.VITE_SITE_URL": JSON.stringify(env.VITE_SITE_URL || ""),
       "import.meta.env.VITE_PRIVY_APP_ID": JSON.stringify(
         env.VITE_PRIVY_APP_ID || env.PRIVY_APP_ID || "",
       ),
