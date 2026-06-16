@@ -4,6 +4,7 @@ import { useSolanaWallet } from "./use-solana-wallet";
 import {
   fetchLoginNonce,
   getToken,
+  isBackendConfigured,
   loginWithWallet,
   logout as clearBackendToken,
 } from "../lib/api/autonClient";
@@ -48,6 +49,11 @@ export function useBackendSession() {
   const hasSession = Boolean(getToken());
 
   const syncSession = useCallback(async () => {
+    if (!isBackendConfigured()) {
+      setSyncError("Auton API is not live yet — check back soon.");
+      return false;
+    }
+
     if (!address) {
       setSyncError("Connect a Solana wallet first");
       return false;
@@ -87,6 +93,7 @@ export function useBackendSession() {
     ready,
     authenticated,
     address,
+    backendConfigured: isBackendConfigured(),
     hasSession,
     syncing,
     syncError,

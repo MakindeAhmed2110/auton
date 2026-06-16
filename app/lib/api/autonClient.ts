@@ -1,11 +1,11 @@
 /**
  * Auton API client for the React Router frontend.
  *
- * Set VITE_AUTON_API_URL in your frontend .env (default: http://localhost:4000)
+ * Optional: set VITE_AUTON_API_URL when your backend is deployed.
+ * Without it, wallet login / dashboard / gateway features stay disabled.
  */
 
-const API_BASE =
-  import.meta.env.VITE_AUTON_API_URL || "http://localhost:4000";
+const API_BASE = import.meta.env.VITE_AUTON_API_URL?.trim() || "";
 
 const TOKEN_KEY = "auton_jwt";
 
@@ -33,6 +33,14 @@ export type DashboardStats = {
 
 type RequestError = Error & { status?: number; data?: unknown };
 
+export function isBackendConfigured() {
+  return API_BASE.length > 0;
+}
+
+export function getBackendUrl() {
+  return API_BASE || null;
+}
+
 export function getToken() {
   if (typeof window === "undefined") return null;
   return localStorage.getItem(TOKEN_KEY);
@@ -48,10 +56,20 @@ export function logout() {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+function assertBackendConfigured() {
+  if (!isBackendConfigured()) {
+    throw new Error(
+      "Auton API is not configured yet. Set VITE_AUTON_API_URL when your backend is live.",
+    );
+  }
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
+  assertBackendConfigured();
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string> | undefined),
@@ -144,6 +162,8 @@ export async function fetchStakingSummary() {
 }
 
 export const autonClient = {
+  isBackendConfigured,
+  getBackendUrl,
   fetchLoginNonce,
   loginWithWallet,
   logout,

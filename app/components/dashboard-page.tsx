@@ -2,12 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useBackendSession } from "../hooks/use-backend-session";
 import { useDashboard } from "../hooks/use-dashboard";
+import { getBackendUrl, isBackendConfigured } from "../lib/api/autonClient";
 import { LoginModal } from "./login-modal";
 
-const GATEWAY_BASE =
-  (typeof import.meta !== "undefined" &&
-    import.meta.env?.VITE_AUTON_API_URL) ||
-  "http://localhost:4000";
+const backendUrl = getBackendUrl();
 
 function truncateAddress(address: string) {
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
@@ -56,6 +54,7 @@ export function DashboardPage() {
     ready,
     authenticated,
     address,
+    backendConfigured,
     hasSession,
     syncing,
     syncError,
@@ -63,7 +62,7 @@ export function DashboardPage() {
   } = useBackendSession();
 
   const { data, loading, error, newKey, setNewKey, generateKey } = useDashboard(
-    authenticated && hasSession,
+    backendConfigured && authenticated && hasSession,
   );
 
   const handleCreateKey = async () => {
@@ -120,11 +119,41 @@ export function DashboardPage() {
           )}
         </div>
 
-        {!ready && (
+        {!backendConfigured && (
+          <div className="rounded-2xl border border-white/15 bg-white/[0.02] p-6 md:p-8">
+            <h2 className="pixel-serif text-xl text-white">Coming soon</h2>
+            <p className="pixel-sans mt-3 max-w-2xl text-sm leading-relaxed text-white/60">
+              API keys, compute balances, and the AI gateway need the Auton
+              backend — which isn&apos;t deployed yet. You don&apos;t need to
+              configure anything on Vercel for now.
+            </p>
+            <p className="pixel-sans mt-3 text-sm text-white/50">
+              When it&apos;s live, add{" "}
+              <code className="text-white/70">VITE_AUTON_API_URL</code> to your
+              environment variables.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-4">
+              <Link
+                to="/markets"
+                className="pixel-sans text-sm text-[#80a0c1] transition-colors hover:text-[#80a0c1]/80"
+              >
+                Browse marketplace →
+              </Link>
+              <Link
+                to="/staking"
+                className="pixel-sans text-sm text-[#80a0c1] transition-colors hover:text-[#80a0c1]/80"
+              >
+                Stake $AUTO →
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {backendConfigured && !ready && (
           <p className="pixel-sans text-sm text-white/50">Loading wallet...</p>
         )}
 
-        {ready && !authenticated && (
+        {backendConfigured && ready && !authenticated && (
           <div className="rounded-2xl border border-white/15 p-6 text-center">
             <p className="pixel-sans text-sm text-white/60">
               Connect your Solana wallet to access your dashboard.
@@ -139,7 +168,7 @@ export function DashboardPage() {
           </div>
         )}
 
-        {ready && authenticated && !hasSession && (
+        {backendConfigured && ready && authenticated && !hasSession && (
           <div className="rounded-2xl border border-white/15 p-6 text-center">
             <p className="pixel-sans text-sm text-white/60">
               Sign a message to activate your backend session.
@@ -160,7 +189,7 @@ export function DashboardPage() {
           </div>
         )}
 
-        {ready && authenticated && hasSession && (
+        {backendConfigured && ready && authenticated && hasSession && (
           <>
             {error && (
               <p className="pixel-sans mb-6 text-sm text-red-400/80">{error}</p>
@@ -350,7 +379,7 @@ export function DashboardPage() {
                 Auton API key.
               </p>
               <code className="pixel-sans block overflow-x-auto rounded-lg border border-white/10 bg-black px-4 py-3 text-xs text-[#80a0c1]">
-                {GATEWAY_BASE}/api/v1/gateway/chat/completions
+                {backendUrl}/api/v1/gateway/chat/completions
               </code>
             </section>
 
