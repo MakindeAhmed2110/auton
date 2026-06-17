@@ -4,9 +4,9 @@ import { siteMeta } from "../lib/site-meta";
 
 export function meta({}: Route.MetaArgs) {
   return siteMeta({
-    title: "Auton — Derivatives for Decentralized Compute",
+    title: "Auton — The CME for Machine Resources",
     description:
-      "The derivatives layer for decentralized compute — hedge volatility, guarantee capacity, earn yield.",
+      "Trade, hedge, and secure future compute capacity directly from your Solana wallet. The liquidity venue for the machine economy.",
     path: "/",
   });
 }

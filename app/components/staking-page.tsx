@@ -1,5 +1,4 @@
 import { useState, type ReactNode } from "react";
-import { Link } from "react-router";
 import BN from "bn.js";
 import { useSolanaWallet } from "../hooks/use-solana-wallet";
 import { useStaking } from "../hooks/use-staking";
@@ -190,23 +189,6 @@ export function StakingPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <header className="border-b border-white/10 px-4 py-4 md:px-6">
-        <div className="mx-auto flex max-w-lg items-center justify-between">
-          <Link
-            to="/"
-            className="pixel-serif-logo text-lg font-bold text-white md:text-xl"
-          >
-            AUTON
-          </Link>
-          <Link
-            to="/"
-            className="pixel-sans text-sm text-white/60 transition-colors hover:text-white"
-          >
-            ← Back
-          </Link>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-lg px-4 py-8 md:px-6 md:py-12">
         <div className="mb-8">
           <h1 className="pixel-serif text-2xl text-white md:text-3xl">

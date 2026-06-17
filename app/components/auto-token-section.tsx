@@ -1,3 +1,5 @@
+import { TokenAddress } from "./token-address";
+
 const TOKEN_STEPS = [
   {
     step: "01",
@@ -21,29 +23,34 @@ const TOKEN_STEPS = [
 
 export function AutoTokenSection() {
   return (
-    <section id="auto" className="border-t border-white/10 bg-black py-12 md:py-24">
+    <section id="auto" className="border-t border-black/10 bg-white py-12 md:py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
-        <div className="mb-12 text-center md:mb-16">
-          <h2 className="pixel-serif text-3xl text-white md:text-4xl lg:text-5xl">
+        <div className="mb-12 flex flex-col items-center gap-5 text-center md:mb-16">
+          <h2 className="pixel-serif text-3xl text-black md:text-4xl lg:text-5xl">
             How <span className="dollar">$</span>AUTO works:
           </h2>
+          <p className="pixel-sans max-w-xl text-sm text-black/60">
+            The settlement and collateral asset of the venue. Every contract
+            settled programmatically buys back and burns supply.
+          </p>
+          <TokenAddress variant="light" />
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
           {TOKEN_STEPS.map((item) => (
             <div
               key={item.step}
-              className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 md:p-8"
+              className="rounded-2xl border border-black/10 bg-black/[0.02] p-6 md:p-8"
             >
               <div className="mb-4 flex items-center gap-3">
-                <span className="pixel-serif text-3xl text-white/60 md:text-4xl">
+                <span className="pixel-serif text-3xl text-black/40 md:text-4xl">
                   {item.step}
                 </span>
               </div>
-              <h3 className="pixel-serif mb-3 text-lg text-white md:text-xl">
+              <h3 className="pixel-serif mb-3 text-lg text-black md:text-xl">
                 {item.title}
               </h3>
-              <p className="pixel-sans text-sm leading-relaxed text-white/70">
+              <p className="pixel-sans text-sm leading-relaxed text-black/70">
                 {item.description}
               </p>
             </div>
@@ -52,8 +59,10 @@ export function AutoTokenSection() {
 
         <div className="mt-12 text-center md:mt-16">
           <a
-            href="#docs"
-            className="pixel-sans inline-block text-xs text-[#80a0c1]/50 transition-colors hover:text-[#80a0c1] md:text-sm"
+            href="https://docs.autonaisol.xyz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="pixel-sans inline-block text-xs text-[#4f7299]/70 transition-colors hover:text-[#4f7299] md:text-sm"
           >
             Learn more about <span className="dollar">$</span>AUTO →
           </a>

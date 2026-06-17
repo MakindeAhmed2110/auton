@@ -1,18 +1,19 @@
 import { Link } from "react-router";
 import { useState } from "react";
-import { LoginButton } from "./login-button";
+
+const TRADE_APP_URL = "https://trade.autonaisol.xyz";
 
 const NAV_LINKS = [
-  { label: "Markets", href: "/markets" },
-  { label: "Earn", href: "/earn" },
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Docs", href: "#docs" },
+  { label: "Markets", href: TRADE_APP_URL, internal: false },
+  { label: "Earn", href: "/earn", internal: true },
+  { label: "Dashboard", href: TRADE_APP_URL, internal: false },
+  { label: "Docs", href: "https://docs.autonaisol.xyz", internal: false },
 ];
 
 const AUTO_LINKS = [
-  { label: "Staking", href: "/staking" },
-  { label: "Treasury", href: "/treasury" },
-  { label: "Token", href: "#auto" },
+  { label: "Staking", href: "/staking", internal: true },
+  { label: "Treasury", href: "/treasury", internal: true },
+  { label: "Token", href: "/#auto", internal: true },
 ];
 
 function GitHubIcon() {
@@ -60,27 +61,43 @@ export function Header({ variant = "dark" }: { variant?: "light" | "dark" }) {
     ? "border-black/10 bg-white/95"
     : "border-white/10 bg-black/95";
   const burger = isLight ? "bg-black" : "bg-white";
+  const tradeBtn = isLight
+    ? "bg-black text-white hover:bg-black/85"
+    : "bg-white text-black hover:bg-white/85";
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 py-4">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <nav className={`flex items-center justify-between rounded-2xl border px-4 py-3 backdrop-blur-sm md:px-6 ${navShell}`}>
           <div className="flex-1">
-            <a href="/" className={`pixel-serif-logo flex items-center text-lg font-bold md:text-xl ${logo}`}>
+            <Link
+              to="/"
+              className={`pixel-serif-logo flex items-center text-lg font-bold md:text-xl ${logo}`}
+            >
               AUTON
-            </a>
+            </Link>
           </div>
 
           <div className="hidden items-center gap-8 md:flex">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                to={link.href}
-                className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) =>
+              link.internal ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
+                >
+                  {link.label}
+                </a>
+              ),
+            )}
             <div className="group relative">
               <span className={`pixel-sans inline-flex cursor-pointer items-center gap-1 text-sm tracking-wide transition-colors ${linkClass}`}>
                 <span className="dollar">$</span>AUTO
@@ -90,15 +107,25 @@ export function Header({ variant = "dark" }: { variant?: "light" | "dark" }) {
               </span>
               <div className="absolute top-full left-1/2 hidden -translate-x-1/2 pt-3 group-hover:block">
                 <div className={`flex flex-col gap-3 rounded-xl border px-5 py-3 whitespace-nowrap ${dropdownBg}`}>
-                  {AUTO_LINKS.map((autoLink) => (
-                    <a
-                      key={autoLink.label}
-                      href={autoLink.href}
-                      className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
-                    >
-                      {autoLink.label}
-                    </a>
-                  ))}
+                  {AUTO_LINKS.map((autoLink) =>
+                    autoLink.internal ? (
+                      <Link
+                        key={autoLink.label}
+                        to={autoLink.href}
+                        className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
+                      >
+                        {autoLink.label}
+                      </Link>
+                    ) : (
+                      <a
+                        key={autoLink.label}
+                        href={autoLink.href}
+                        className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
+                      >
+                        {autoLink.label}
+                      </a>
+                    ),
+                  )}
                 </div>
               </div>
             </div>
@@ -132,7 +159,12 @@ export function Header({ variant = "dark" }: { variant?: "light" | "dark" }) {
             >
               <TelegramIcon />
             </a>
-            <LoginButton variant={variant} />
+            <a
+              href={`${TRADE_APP_URL}/trade`}
+              className={`pixel-serif-logo rounded-lg px-4 py-2 text-sm transition-colors md:px-5 ${tradeBtn}`}
+            >
+              Trade
+            </a>
             <button
               type="button"
               className="flex h-8 w-8 flex-col items-center justify-center gap-1.5 md:hidden"
@@ -149,26 +181,48 @@ export function Header({ variant = "dark" }: { variant?: "light" | "dark" }) {
         {menuOpen && (
           <div className={`mt-2 rounded-2xl border p-4 md:hidden ${menuBg}`}>
             <div className="flex flex-col gap-3">
-              {NAV_LINKS.map((navLink) => (
-                <Link
-                  key={navLink.label}
-                  to={navLink.href}
-                  className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {navLink.label}
-                </Link>
-              ))}
-              {AUTO_LINKS.map((autoLink) => (
-                <a
-                  key={autoLink.label}
-                  href={autoLink.href}
-                  className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {autoLink.label}
-                </a>
-              ))}
+              {NAV_LINKS.map((navLink) =>
+                navLink.internal ? (
+                  <Link
+                    key={navLink.label}
+                    to={navLink.href}
+                    className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {navLink.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={navLink.label}
+                    href={navLink.href}
+                    className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {navLink.label}
+                  </a>
+                ),
+              )}
+              {AUTO_LINKS.map((autoLink) =>
+                autoLink.internal ? (
+                  <Link
+                    key={autoLink.label}
+                    to={autoLink.href}
+                    className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {autoLink.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={autoLink.label}
+                    href={autoLink.href}
+                    className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {autoLink.label}
+                  </a>
+                ),
+              )}
             </div>
           </div>
         )}

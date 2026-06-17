@@ -1,5 +1,4 @@
 import { type ReactNode } from "react";
-import { Link } from "react-router";
 import { autoTreasuryConfig } from "../config/auto-treasury";
 import { useTreasury } from "../hooks/use-treasury";
 import {
@@ -36,23 +35,6 @@ export function TreasuryPage() {
       <div className="pointer-events-none fixed inset-0 z-0" aria-hidden>
         <PixelBackground variant="fine" />
       </div>
-
-      <header className="relative z-10 border-b border-black/10 bg-white/70 px-4 py-4 backdrop-blur-sm md:px-6">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link
-            to="/"
-            className="pixel-serif-logo text-lg font-bold text-black md:text-xl"
-          >
-            AUTON
-          </Link>
-          <Link
-            to="/"
-            className="pixel-sans text-sm text-black/60 transition-colors hover:text-black"
-          >
-            ← Back
-          </Link>
-        </div>
-      </header>
 
       <main className="relative z-10 mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-8 md:mb-10">

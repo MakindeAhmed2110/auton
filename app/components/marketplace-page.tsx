@@ -371,31 +371,6 @@ export function MarketplacePage() {
         <PixelBackground variant="fine" />
       </div>
 
-      <header className="relative z-10 border-b border-black/10 bg-white/70 px-4 py-4 backdrop-blur-sm md:px-6">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <Link
-            to="/"
-            className="pixel-serif-logo text-lg font-bold text-black md:text-xl"
-          >
-            AUTON
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              to="/dashboard"
-              className="pixel-sans text-sm text-black/60 transition-colors hover:text-black"
-            >
-              Dashboard
-            </Link>
-            <Link
-              to="/"
-              className="pixel-sans text-sm text-black/60 transition-colors hover:text-black"
-            >
-              ← Home
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <main className="relative z-10 mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-8 md:mb-10">
           <h1 className="pixel-serif text-3xl text-black md:text-4xl">

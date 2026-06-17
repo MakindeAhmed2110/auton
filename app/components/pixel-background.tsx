@@ -21,11 +21,14 @@ function densityAt(x: number, y: number) {
 }
 
 export type PixelBackgroundVariant = "clustered" | "fine";
+export type PixelBackgroundTheme = "light" | "dark";
 
 export function PixelBackground({
   variant = "clustered",
+  theme = "light",
 }: {
   variant?: PixelBackgroundVariant;
+  theme?: PixelBackgroundTheme;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -45,10 +48,14 @@ export function PixelBackground({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
+    const isDark = theme === "dark";
+    const bg = isDark ? "#000000" : "#ffffff";
+    const dot = isDark ? "255,255,255" : "0,0,0";
+
     const draw = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
 
       if (variant === "fine") {
@@ -63,7 +70,7 @@ export function PixelBackground({
             if (rand > 0.38) continue;
 
             const alpha = 0.05 + rand * 0.12;
-            ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+            ctx.fillStyle = `rgba(${dot},${alpha})`;
             ctx.fillRect(col * spacing + 1, row * spacing + 1, 1, 1);
           }
         }
@@ -86,8 +93,8 @@ export function PixelBackground({
           const rand = hash - Math.floor(hash);
 
           if (rand < threshold) {
-            const alpha = 0.12 + d * 0.5;
-            ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+            const alpha = isDark ? 0.08 + d * 0.42 : 0.12 + d * 0.5;
+            ctx.fillStyle = `rgba(${dot},${alpha})`;
             ctx.fillRect(col * spacing, row * spacing, 1.5, 1.5);
           }
         }
@@ -105,7 +112,7 @@ export function PixelBackground({
     return () => {
       window.removeEventListener("resize", render);
     };
-  }, [variant]);
+  }, [variant, theme]);
 
   return (
     <canvas

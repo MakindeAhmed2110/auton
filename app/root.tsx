@@ -2,12 +2,12 @@ import {
   isRouteErrorResponse,
   Links,
   Meta,
-  Outlet,
   Scripts,
   ScrollRestoration,
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { AppLayout } from "./components/app-layout";
 import { AutonConfigProvider } from "./hooks/use-auton-config";
 import { AppProviders } from "./providers";
 import "./app.css";
@@ -49,7 +49,7 @@ export default function App() {
   return (
     <AutonConfigProvider>
       <AppProviders>
-        <Outlet />
+        <AppLayout />
       </AppProviders>
     </AutonConfigProvider>
   );

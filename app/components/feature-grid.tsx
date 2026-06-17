@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router";
 import {
   EarnYieldIllustration,
   GuaranteeCapacityIllustration,
@@ -56,47 +55,47 @@ function FeatureCard({
 }) {
   return (
     <div
-      className={`flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] transition-colors hover:bg-white/[0.04] ${large ? "p-8" : "p-6"} ${className}`}
+      className={`flex h-full flex-col overflow-hidden rounded-2xl border border-black/10 bg-black/[0.02] transition-colors hover:bg-black/[0.04] ${large ? "p-8" : "p-6"} ${className}`}
     >
-      <h3 className={`pixel-serif text-white ${large ? "text-2xl md:text-3xl" : "text-xl"}`}>
+      <h3 className={`pixel-serif text-black ${large ? "text-2xl md:text-3xl" : "text-xl"}`}>
         {title}
       </h3>
-      <p className={`pixel-sans text-sm text-white/70 ${large ? "mt-3" : "mt-2"}`}>
+      <p className={`pixel-sans text-sm text-black/70 ${large ? "mt-3" : "mt-2"}`}>
         {description}
       </p>
-      <div className="mt-4 flex flex-1 items-center justify-center">{illustration}</div>
+      <div className="mt-4 flex flex-1 items-center justify-center invert">{illustration}</div>
     </div>
   );
 }
 
 export function FeatureGrid() {
   return (
-    <section id="markets" className="bg-black py-12 md:py-24">
+    <section id="markets" className="bg-white py-12 md:py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <h2 className="pixel-serif text-3xl text-white md:text-4xl">
+            <h2 className="pixel-serif text-3xl text-black md:text-4xl">
               Compute derivatives
             </h2>
-            <p className="pixel-sans mt-3 max-w-xl text-sm text-white/60">
+            <p className="pixel-sans mt-3 max-w-xl text-sm text-black/60">
               Trade forward contracts and capacity commitments on-chain.
             </p>
           </div>
-          <Link
-            to="/markets"
-            className="pixel-sans text-sm text-[#80a0c1] transition-colors hover:text-[#80a0c1]/80"
+          <a
+            href="https://trade.autonaisol.xyz"
+            className="pixel-sans text-sm text-[#4f7299] transition-colors hover:text-[#4f7299]/80"
           >
             Open marketplace →
-          </Link>
+          </a>
         </div>
         <div className="flex flex-col gap-4 md:hidden">
           {FEATURES.map((feature) => (
             <div
               key={feature.title}
-              className="rounded-2xl border border-white/10 bg-white/[0.02] p-6"
+              className="rounded-2xl border border-black/10 bg-black/[0.02] p-6"
             >
-              <h3 className="pixel-serif text-xl text-white">{feature.title}</h3>
-              <p className="pixel-sans mt-2 text-sm text-white/70">{feature.description}</p>
+              <h3 className="pixel-serif text-xl text-black">{feature.title}</h3>
+              <p className="pixel-sans mt-2 text-sm text-black/70">{feature.description}</p>
             </div>
           ))}
         </div>

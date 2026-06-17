@@ -78,31 +78,6 @@ export function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b border-black/10 px-4 py-4 md:px-6">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link
-            to="/"
-            className="pixel-serif-logo text-lg font-bold text-black md:text-xl"
-          >
-            AUTON
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              to="/markets"
-              className="pixel-sans text-sm text-black/60 transition-colors hover:text-black"
-            >
-              Marketplace
-            </Link>
-            <Link
-              to="/"
-              className="pixel-sans text-sm text-black/60 transition-colors hover:text-black"
-            >
-              ← Home
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-8 md:mb-10">
           <h1 className="pixel-serif text-3xl text-black md:text-4xl">
