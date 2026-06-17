@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Courier New", Monaco, Consolas, monospace;
-  --font-serif: "argent-pixel-cf", sans-serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Syne", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 html,
@@ -16,48 +17,48 @@ body {
 }
 
 .pixel-serif {
-  font-family: "argent-pixel-cf", sans-serif;
+  font-family: "Syne", ui-sans-serif, system-ui, sans-serif;
   font-style: normal;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  font-smooth: never;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: unset;
-  text-rendering: optimizeSpeed;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 .pixel-serif-logo,
 .pixel-serif-sub {
-  font-family: "argent-pixel-cf", sans-serif;
+  font-family: "Syne", ui-sans-serif, system-ui, sans-serif;
   font-style: normal;
-  font-weight: 400;
-  font-smooth: never;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: unset;
-  text-rendering: optimizeSpeed;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 .pixel-serif-sub {
-  letter-spacing: 0.01em;
-  line-height: 1.6;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 .pixel-sans {
-  font-family: "Courier New", Monaco, Consolas, monospace;
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   font-weight: 400;
-  letter-spacing: 0.01em;
-  line-height: 1.8;
-  -webkit-text-stroke: 0.3px currentColor;
+  letter-spacing: 0;
+  line-height: 1.6;
 }
 
-input.pixel-sans {
-  font-smooth: never;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: unset;
+input.pixel-sans,
+textarea.pixel-sans {
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 .dollar {
-  font-family: "Courier New", Monaco, monospace;
-  font-weight: 400;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 500;
+}
+
+pre.pixel-sans,
+code.pixel-sans {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.92em;
+  letter-spacing: 0;
+  line-height: 1.5;
 }
