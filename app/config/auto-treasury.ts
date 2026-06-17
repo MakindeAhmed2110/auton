@@ -1,16 +1,18 @@
 /**
  * $AUTO treasury config — set when the token launches:
- *
- *   VITE_AUTO_TOKEN_MINT=<SPL mint address>
- *   VITE_AUTO_TOTAL_SUPPLY=1000000000
- *   VITE_AUTO_TREASURY_API_URL=<optional backend stats endpoint>
+ * VITE_AUTO_TOKEN_MINT, VITE_AUTO_TREASURY_API_URL
  */
-
 export const autoTreasuryConfig = {
   tokenMint: import.meta.env.VITE_AUTO_TOKEN_MINT?.trim() ?? "",
-  totalSupply: Number(import.meta.env.VITE_AUTO_TOTAL_SUPPLY ?? 1_000_000_000),
   treasuryApiUrl: import.meta.env.VITE_AUTO_TREASURY_API_URL?.trim() ?? "",
-} as const;
+  /** On-chain Streamflow vesting / lock contract (mainnet). */
+  streamflowLockUrl:
+    "https://app.streamflow.finance/contract/solana/mainnet/BPwfoyr9XqmNyTVqRzTA5jTT9UcwWXoSx8eyQr5BsAEs?utm_source=twitter&utm_medium=app",
+  /** Total $AUTO locked via Streamflow (human-readable token units). */
+  lockedAutoTokens: 34_000_000,
+  /** USDC spent on completed buybacks. */
+  buybacksUsdcCompleted: 1_200,
+};
 
 export function isTreasuryConfigured() {
   return autoTreasuryConfig.tokenMint.length > 0;

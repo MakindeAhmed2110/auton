@@ -35,6 +35,12 @@
         "parentId": "root",
         "file": "routes/treasury.tsx",
         "path": "treasury"
+      },
+      "routes/earn": {
+        "id": "routes/earn",
+        "parentId": "root",
+        "file": "routes/earn.tsx",
+        "path": "earn"
       }
     }
   },
@@ -86,6 +92,12 @@
         "parentId": "root",
         "file": "routes/treasury.tsx",
         "path": "treasury"
+      },
+      "routes/earn": {
+        "id": "routes/earn",
+        "parentId": "root",
+        "file": "routes/earn.tsx",
+        "path": "earn"
       }
     },
     "routeDiscovery": {
@@ -121,6 +133,10 @@
           {
             "file": "routes/treasury.tsx",
             "path": "treasury"
+          },
+          {
+            "file": "routes/earn.tsx",
+            "path": "earn"
           }
         ]
       }

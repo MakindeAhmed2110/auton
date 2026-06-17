@@ -5,10 +5,10 @@ export type TreasuryTimePoint = {
 };
 
 export type TreasuryStats = {
-  totalBurned: number;
-  burnedSupplyPercent: number;
+  totalLocked: number;
+  lockedSupplyPercent: number;
   buybackCount: number;
-  returnedToHolders: number;
+  buybacksUsdcCompleted: number;
   totalStaked: number;
   stakedSupplyPercent: number;
   buybackSpendUsdc: number;
@@ -18,6 +18,6 @@ export type TreasuryStats = {
 
 export type TreasuryData = {
   stats: TreasuryStats;
-  burnHistory: TreasuryTimePoint[];
+  lockedHistory: TreasuryTimePoint[];
   stakedHistory: TreasuryTimePoint[];
 };

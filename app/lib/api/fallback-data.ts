@@ -1,3 +1,4 @@
+import { autoTreasuryConfig } from "../../config/auto-treasury";
 import type { DashboardStats } from "./types";
 import type { TreasuryData, TreasuryTimePoint } from "../treasury/types";
 
@@ -11,21 +12,13 @@ function daysAgo(days: number) {
   };
 }
 
-function buildBurnHistory(): TreasuryTimePoint[] {
+function buildLockedHistory(): TreasuryTimePoint[] {
+  const locked = autoTreasuryConfig.lockedAutoTokens;
   const points = [
-    { days: 12, value: 1_200_000 },
-    { days: 11, value: 2_450_000 },
-    { days: 10, value: 3_800_000 },
-    { days: 9, value: 5_100_000 },
-    { days: 8, value: 6_200_000 },
-    { days: 7, value: 7_400_000 },
-    { days: 6, value: 8_600_000 },
-    { days: 5, value: 9_800_000 },
-    { days: 4, value: 10_900_000 },
-    { days: 3, value: 11_800_000 },
-    { days: 2, value: 12_700_000 },
-    { days: 1, value: 13_400_000 },
-    { days: 0, value: 13_938_865 },
+    { days: 6, value: 0 },
+    { days: 4, value: 8_000_000 },
+    { days: 2, value: 22_000_000 },
+    { days: 0, value: locked },
   ];
 
   return points.map(({ days, value }) => {
@@ -96,17 +89,17 @@ export const FALLBACK_DASHBOARD: DashboardStats = {
 
 export const FALLBACK_TREASURY: TreasuryData = {
   stats: {
-    totalBurned: 13_938_865,
-    burnedSupplyPercent: 1.39,
-    buybackCount: 18,
-    returnedToHolders: 8932.37,
-    totalStaked: 72_540_000,
-    stakedSupplyPercent: 7.3,
-    buybackSpendUsdc: 4467.92,
-    stakerRewardsUsdc: 4464.44,
-    settlementFeesUsdc: 8921.35,
+    totalLocked: autoTreasuryConfig.lockedAutoTokens,
+    lockedSupplyPercent: 3.4,
+    buybackCount: 1,
+    buybacksUsdcCompleted: autoTreasuryConfig.buybacksUsdcCompleted,
+    totalStaked: 0,
+    stakedSupplyPercent: 0,
+    buybackSpendUsdc: autoTreasuryConfig.buybacksUsdcCompleted,
+    stakerRewardsUsdc: 0,
+    settlementFeesUsdc: autoTreasuryConfig.buybacksUsdcCompleted,
   },
-  burnHistory: buildBurnHistory(),
+  lockedHistory: buildLockedHistory(),
   stakedHistory: buildStakedHistory(),
 };
 

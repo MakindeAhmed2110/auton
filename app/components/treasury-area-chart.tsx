@@ -5,6 +5,7 @@ type TreasuryAreaChartProps = {
   color: string;
   gradientId: string;
   stepped?: boolean;
+  theme?: "light" | "dark";
 };
 
 function buildLinePath(
@@ -35,6 +36,7 @@ export function TreasuryAreaChart({
   color,
   gradientId,
   stepped = false,
+  theme = "light",
 }: TreasuryAreaChartProps) {
   const width = 320;
   const height = 140;
@@ -43,6 +45,9 @@ export function TreasuryAreaChart({
   const innerWidth = width - paddingX * 2;
   const innerHeight = height - paddingY * 2;
   const maxValue = Math.max(...data.map((point) => point.value), 1);
+  const gridStroke = theme === "light" ? "black" : "white";
+  const labelClass =
+    theme === "light" ? "text-black/35" : "text-white/30";
 
   const points = data.map((point, index) => {
     const x =
@@ -89,7 +94,7 @@ export function TreasuryAreaChart({
               y1={y}
               x2={width - paddingX}
               y2={y}
-              stroke="white"
+              stroke={gridStroke}
               strokeOpacity={0.06}
             />
           );
@@ -112,14 +117,16 @@ export function TreasuryAreaChart({
             y1={height - paddingY}
             x2={width - paddingX}
             y2={height - paddingY}
-            stroke="white"
+            stroke={gridStroke}
             strokeOpacity={0.12}
           />
         )}
       </svg>
 
       {xLabels.length > 0 && (
-        <div className="pixel-sans mt-2 flex justify-between text-[10px] text-white/30">
+        <div
+          className={`pixel-sans mt-2 flex justify-between text-[10px] ${labelClass}`}
+        >
           {xLabels.map((point) => (
             <span key={point.date}>{point.label}</span>
           ))}

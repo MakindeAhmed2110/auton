@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { Link } from "react-router";
+import { autoTreasuryConfig } from "../config/auto-treasury";
 import { useTreasury } from "../hooks/use-treasury";
 import {
   formatCompactNumber,
@@ -7,6 +8,7 @@ import {
   formatTokenCount,
   formatUsd,
 } from "../lib/treasury/format";
+import { PixelBackground } from "./pixel-background";
 import { TreasuryAreaChart } from "./treasury-area-chart";
 
 function StatCard({
@@ -18,7 +20,7 @@ function StatCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-white/15 bg-white/[0.02] p-5 md:p-6 ${className}`}
+      className={`rounded-2xl border border-black/10 bg-white/80 p-5 shadow-sm backdrop-blur-sm md:p-6 ${className}`}
     >
       {children}
     </div>
@@ -27,78 +29,99 @@ function StatCard({
 
 export function TreasuryPage() {
   const { data, loading } = useTreasury();
-  const { stats, burnHistory, stakedHistory } = data;
+  const { stats, lockedHistory } = data;
 
   return (
-    <div className="min-h-screen bg-black">
-      <header className="border-b border-white/10 px-4 py-4 md:px-6">
+    <div className="relative min-h-screen bg-white">
+      <div className="pointer-events-none fixed inset-0 z-0" aria-hidden>
+        <PixelBackground variant="fine" />
+      </div>
+
+      <header className="relative z-10 border-b border-black/10 bg-white/70 px-4 py-4 backdrop-blur-sm md:px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Link
             to="/"
-            className="pixel-serif-logo text-lg font-bold text-white md:text-xl"
+            className="pixel-serif-logo text-lg font-bold text-black md:text-xl"
           >
             AUTON
           </Link>
           <Link
             to="/"
-            className="pixel-sans text-sm text-white/60 transition-colors hover:text-white"
+            className="pixel-sans text-sm text-black/60 transition-colors hover:text-black"
           >
             ← Back
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12">
+      <main className="relative z-10 mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-8 md:mb-10">
-          <h1 className="pixel-serif text-3xl text-white md:text-4xl">
+          <h1 className="pixel-serif text-3xl text-black md:text-4xl">
             Treasury
           </h1>
-          <p className="pixel-sans mt-4 max-w-3xl text-sm leading-relaxed text-white/60 md:text-base">
+          <p className="pixel-sans mt-4 max-w-3xl text-sm leading-relaxed text-black/60 md:text-base">
             100% of the compute margin and a share of{" "}
             <span className="dollar">$</span>AUTO trading fees flow into this
-            treasury. Half buys back and burns <span className="dollar">$</span>
-            AUTO; half is paid to stakers in USDC. Everything below updates live.
+            treasury. Half funds buybacks; half is paid to stakers in USDC.{" "}
+            <span className="dollar">$</span>AUTO supply is locked on-chain via{" "}
+            <a
+              href={autoTreasuryConfig.streamflowLockUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#80a0c1] hover:underline"
+            >
+              Streamflow
+            </a>
+            .
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
-          <StatCard className="border-emerald-500/20 bg-emerald-500/[0.03]">
-            <div className="pixel-serif text-3xl text-emerald-400 md:text-4xl">
-              {loading ? "..." : formatTokenCount(stats.totalBurned)}
+          <StatCard className="border-emerald-600/20 bg-emerald-600/[0.04]">
+            <div className="pixel-serif text-3xl text-emerald-700 md:text-4xl">
+              {loading ? "..." : formatTokenCount(stats.totalLocked)}
             </div>
-            <div className="pixel-sans mt-2 text-sm text-white/70">
-              <span className="dollar">$</span>AUTO burned forever
+            <div className="pixel-sans mt-2 text-sm text-black/70">
+              <span className="dollar">$</span>AUTO locked on Streamflow
             </div>
-            <div className="pixel-sans mt-1 text-xs text-emerald-400/70">
+            <div className="pixel-sans mt-1 text-xs text-emerald-700/80">
               {loading
                 ? "..."
-                : `${formatPercent(stats.burnedSupplyPercent)} of supply removed`}
+                : `${formatPercent(stats.lockedSupplyPercent, 1)} of supply locked`}
+            </div>
+            <a
+              href={autoTreasuryConfig.streamflowLockUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pixel-sans mt-3 inline-block text-xs text-[#80a0c1] hover:underline"
+            >
+              View lock contract →
+            </a>
+          </StatCard>
+
+          <StatCard>
+            <div className="pixel-serif text-3xl text-black md:text-4xl">
+              {loading ? "..." : formatUsd(stats.buybacksUsdcCompleted)}
+            </div>
+            <div className="pixel-sans mt-2 text-sm text-black/70">
+              buybacks USDC completed
+            </div>
+            <div className="pixel-sans mt-1 text-xs text-black/45">
+              {loading
+                ? "..."
+                : `${stats.buybackCount} buyback${stats.buybackCount === 1 ? "" : "s"} executed`}
             </div>
           </StatCard>
 
           <StatCard>
-            <div className="pixel-serif text-3xl text-white md:text-4xl">
-              {loading ? "..." : formatUsd(stats.returnedToHolders)}
+            <div className="pixel-serif text-3xl text-black/40 md:text-4xl">
+              —
             </div>
-            <div className="pixel-sans mt-2 text-sm text-white/70">
-              returned to holders + stakers
-            </div>
-            <div className="pixel-sans mt-1 text-xs text-white/40">
-              buybacks + USDC rewards
-            </div>
-          </StatCard>
-
-          <StatCard>
-            <div className="pixel-serif text-3xl text-white md:text-4xl">
-              {loading ? "..." : formatCompactNumber(stats.totalStaked)}
-            </div>
-            <div className="pixel-sans mt-2 text-sm text-white/70">
+            <div className="pixel-sans mt-2 text-sm text-black/70">
               <span className="dollar">$</span>AUTO staked
             </div>
-            <div className="pixel-sans mt-1 text-xs text-white/40">
-              {loading
-                ? "..."
-                : `${formatPercent(stats.stakedSupplyPercent, 1)} of supply`}
+            <div className="pixel-sans mt-1 text-xs text-black/45">
+              coming soon
             </div>
           </StatCard>
         </div>
@@ -106,74 +129,76 @@ export function TreasuryPage() {
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
           <StatCard>
             <div className="mb-4">
-              <div className="pixel-sans text-xs text-white/40">
-                Cumulative <span className="dollar">$</span>AUTO burned
+              <div className="pixel-sans text-xs uppercase tracking-wide text-black/45">
+                Cumulative locked
               </div>
-              <div className="pixel-serif mt-1 text-2xl text-white">
+              <div className="pixel-serif mt-1 text-2xl text-black">
                 {loading
                   ? "..."
-                  : `${formatCompactNumber(stats.totalBurned)} AUTO`}
+                  : `${formatCompactNumber(stats.totalLocked)} AUTO`}
               </div>
-              <div className="pixel-sans mt-1 text-xs text-white/40">
+              <div className="pixel-sans mt-1 text-xs text-black/45">
                 {loading
                   ? "..."
-                  : `across ${stats.buybackCount} buybacks`}
+                  : `locked via Streamflow · ${formatPercent(stats.lockedSupplyPercent, 1)} of supply`}
               </div>
             </div>
             <TreasuryAreaChart
-              data={burnHistory}
-              color="#34d399"
-              gradientId="treasury-burn-gradient"
+              data={lockedHistory}
+              color="#059669"
+              gradientId="treasury-locked-gradient"
               stepped
+              theme="light"
             />
           </StatCard>
 
           <StatCard>
             <div className="mb-4">
-              <div className="pixel-sans text-xs text-white/40">
-                <span className="dollar">$</span>AUTO staked over time
+              <div className="pixel-sans text-xs uppercase tracking-wide text-black/45">
+                <span className="dollar">$</span>AUTO stake over time
               </div>
-              <div className="pixel-serif mt-1 text-2xl text-white">
-                {loading
-                  ? "..."
-                  : `${formatCompactNumber(stats.totalStaked)} AUTO`}
+              <div className="pixel-serif mt-1 text-2xl text-black/40">
+                Coming soon
               </div>
-              <div className="pixel-sans mt-1 text-xs text-white/40">
-                rises on stakes, dips on unstakes
+              <div className="pixel-sans mt-1 text-xs text-black/45">
+                Staking rewards and charts launch with the Streamflow stake pool
               </div>
             </div>
-            <TreasuryAreaChart
-              data={stakedHistory}
-              color="#80a0c1"
-              gradientId="treasury-staked-gradient"
-            />
+            <div className="flex h-44 items-center justify-center rounded-xl border border-dashed border-black/12 bg-black/[0.02]">
+              <span className="pixel-sans text-sm text-black/35">
+                (coming soon)
+              </span>
+            </div>
           </StatCard>
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
           <StatCard>
-            <div className="pixel-serif text-2xl text-white md:text-3xl">
+            <div className="pixel-serif text-2xl text-black md:text-3xl">
               {loading ? "..." : formatUsd(stats.buybackSpendUsdc)}
             </div>
-            <div className="pixel-sans mt-2 text-sm text-white/50">
+            <div className="pixel-sans mt-2 text-sm text-black/50">
               spent on buybacks
             </div>
           </StatCard>
 
           <StatCard>
-            <div className="pixel-serif text-2xl text-white md:text-3xl">
-              {loading ? "..." : formatUsd(stats.stakerRewardsUsdc)}
+            <div className="pixel-serif text-2xl text-black/40 md:text-3xl">
+              —
             </div>
-            <div className="pixel-sans mt-2 text-sm text-white/50">
+            <div className="pixel-sans mt-2 text-sm text-black/50">
               paid to stakers
+            </div>
+            <div className="pixel-sans mt-1 text-xs text-black/40">
+              coming soon
             </div>
           </StatCard>
 
           <StatCard>
-            <div className="pixel-serif text-2xl text-white md:text-3xl">
+            <div className="pixel-serif text-2xl text-black md:text-3xl">
               {loading ? "..." : formatUsd(stats.settlementFeesUsdc)}
             </div>
-            <div className="pixel-sans mt-2 text-sm text-white/50">
+            <div className="pixel-sans mt-2 text-sm text-black/50">
               settlement fees collected
             </div>
           </StatCard>
