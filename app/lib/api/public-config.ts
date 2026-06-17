@@ -1,0 +1,60 @@
+import { getBackendUrl } from "./autonClient";
+
+export type AutonPublicConfig = {
+  autoTokenMint: string;
+  masterVaultWallet: string;
+  autoTokenDecimals: number;
+  gatewayPath: string;
+};
+
+const emptyConfig: AutonPublicConfig = {
+  autoTokenMint: "",
+  masterVaultWallet: "",
+  autoTokenDecimals: 6,
+  gatewayPath: "/api/v1/gateway/v1/chat/completions",
+};
+
+let cached: AutonPublicConfig | null = null;
+
+function envOverrides(): Partial<AutonPublicConfig> {
+  return {
+    autoTokenMint: import.meta.env.VITE_AUTO_TOKEN_MINT?.trim() || undefined,
+    masterVaultWallet:
+      import.meta.env.VITE_MASTER_VAULT_WALLET?.trim() || undefined,
+    autoTokenDecimals: import.meta.env.VITE_AUTO_TOKEN_DECIMALS
+      ? Number(import.meta.env.VITE_AUTO_TOKEN_DECIMALS)
+      : undefined,
+  };
+}
+
+export async function fetchPublicConfig(): Promise<AutonPublicConfig> {
+  if (cached) return { ...cached, ...pickDefined(envOverrides()) };
+
+  try {
+    const response = await fetch(`${getBackendUrl()}/api/v1/config`);
+    if (!response.ok) throw new Error(`config ${response.status}`);
+
+    const data = (await response.json()) as AutonPublicConfig;
+    cached = { ...emptyConfig, ...data };
+    return { ...cached, ...pickDefined(envOverrides()) };
+  } catch {
+    const overrides = envOverrides();
+    return {
+      ...emptyConfig,
+      ...pickDefined(overrides),
+      autoTokenMint: overrides.autoTokenMint ?? "",
+      masterVaultWallet: overrides.masterVaultWallet ?? "",
+      autoTokenDecimals: overrides.autoTokenDecimals ?? 6,
+    };
+  }
+}
+
+export function getGatewayUrl(config: AutonPublicConfig) {
+  return `${getBackendUrl()}${config.gatewayPath}`;
+}
+
+function pickDefined<T extends Record<string, unknown>>(obj: T) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, value]) => value !== undefined),
+  ) as Partial<T>;
+}

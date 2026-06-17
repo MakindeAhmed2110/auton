@@ -21,6 +21,21 @@ export default defineConfig(({ mode }) => {
       "import.meta.env.VITE_SOLANA_RPC_URL": JSON.stringify(
         env.VITE_SOLANA_RPC_URL || "",
       ),
+      "import.meta.env.VITE_SOLANA_CLUSTER": JSON.stringify(
+        env.VITE_SOLANA_CLUSTER || "mainnet-beta",
+      ),
+      "import.meta.env.VITE_AUTO_TOKEN_MINT": JSON.stringify(
+        env.VITE_AUTO_TOKEN_MINT || "",
+      ),
+      "import.meta.env.VITE_MASTER_VAULT_WALLET": JSON.stringify(
+        env.VITE_MASTER_VAULT_WALLET || "",
+      ),
+      "import.meta.env.VITE_AUTO_STAKE_POOL": JSON.stringify(
+        env.VITE_AUTO_STAKE_POOL || "",
+      ),
+      "import.meta.env.VITE_AUTO_TOKEN_DECIMALS": JSON.stringify(
+        env.VITE_AUTO_TOKEN_DECIMALS || "6",
+      ),
     },
     build: {
       rolldownOptions: {

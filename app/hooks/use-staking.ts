@@ -1,21 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import type { StakePool } from "@streamflow/staking";
-import {
-  autoStakingConfig,
-  getStakingStatus,
-} from "../config/auto-staking";
+import { autoStakingConfig } from "../config/auto-staking";
+import { useStakingStatusFromConfig } from "./use-auton-config";
 import {
   fetchStakePool,
   fetchUserStakeEntries,
 } from "../lib/staking/client";
 
-type StakingStatus = ReturnType<typeof getStakingStatus>;
 type StakeEntryAccount = Awaited<
   ReturnType<typeof fetchUserStakeEntries>
 >[number];
 
 export function useStaking(walletAddress: string | null) {
-  const status: StakingStatus = getStakingStatus();
+  const status = useStakingStatusFromConfig();
   const [pool, setPool] = useState<StakePool | null>(null);
   const [entries, setEntries] = useState<StakeEntryAccount[]>([]);
   const [loading, setLoading] = useState(false);

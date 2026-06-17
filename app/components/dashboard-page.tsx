@@ -2,7 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useBackendSession } from "../hooks/use-backend-session";
 import { useDashboard } from "../hooks/use-dashboard";
+import { useAutonConfig } from "../hooks/use-auton-config";
 import { getBackendUrl } from "../lib/api/autonClient";
+import { getGatewayUrl } from "../lib/api/public-config";
+import { BackendStatusBadge } from "./backend-status-badge";
 import { LoginModal } from "./login-modal";
 
 const backendUrl = getBackendUrl();
@@ -56,6 +59,8 @@ export function DashboardPage() {
   const { data, loading, newKey, setNewKey, generateKey } = useDashboard(
     authenticated && hasSession,
   );
+  const { config } = useAutonConfig();
+  const gatewayUrl = config ? getGatewayUrl(config) : `${backendUrl}/api/v1/gateway/v1/chat/completions`;
 
   const handleCreateKey = async () => {
     if (!keyName.trim()) return;
@@ -104,6 +109,9 @@ export function DashboardPage() {
             Manage API keys, forward compute balances, and staking yield. Route
             agents through the OpenAI-compatible gateway.
           </p>
+          <div className="mt-3">
+            <BackendStatusBadge />
+          </div>
           {address && (
             <p className="pixel-sans mt-3 text-xs text-white/40">
               wallet: {truncateAddress(address)}
@@ -319,7 +327,7 @@ export function DashboardPage() {
                 Auton API key.
               </p>
               <code className="pixel-sans block overflow-x-auto rounded-lg border border-white/10 bg-black px-4 py-3 text-xs text-[#80a0c1]">
-                {backendUrl}/api/v1/gateway/chat/completions
+                {gatewayUrl}
               </code>
             </section>
 

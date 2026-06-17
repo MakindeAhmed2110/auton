@@ -8,6 +8,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { AutonConfigProvider } from "./hooks/use-auton-config";
 import { AppProviders } from "./providers";
 import "./app.css";
 
@@ -41,9 +42,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <AppProviders>
-      <Outlet />
-    </AppProviders>
+    <AutonConfigProvider>
+      <AppProviders>
+        <Outlet />
+      </AppProviders>
+    </AutonConfigProvider>
   );
 }
 

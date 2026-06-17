@@ -137,9 +137,14 @@ export async function loginWithWallet(
     }
 
     return result;
-  } catch {
-    activateFallbackSession();
-    return { token: "fallback" };
+  } catch (error) {
+    const status = (error as RequestError).status;
+    // Only use demo fallback when the API is unreachable — not on auth errors.
+    if (status === undefined) {
+      activateFallbackSession();
+      return { token: "fallback" };
+    }
+    throw error;
   }
 }
 
@@ -217,10 +222,20 @@ export async function fetchTreasuryStats() {
   );
 }
 
+export async function checkBackendHealth() {
+  try {
+    const response = await fetch(`${API_BASE}/health`);
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 export const autonClient = {
   isBackendConfigured,
   getBackendUrl,
   getTreasuryApiUrl,
+  checkBackendHealth,
   hasActiveSession,
   activateFallbackSession,
   fetchLoginNonce,
