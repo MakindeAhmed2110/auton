@@ -1,19 +1,21 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import {
-  COMPUTE_CONTRACTS,
   formatRatePerM,
   formatTokenMillions,
   hedgeSavingsPercent,
-  type ComputeContract,
-  type ContractType,
 } from "../config/marketplace";
 import { useBackendSession } from "../hooks/use-backend-session";
 import { useDashboard } from "../hooks/use-dashboard";
-import { purchaseComputeContract } from "../lib/api/marketplace";
+import { useMarketplaceCatalog } from "../hooks/use-marketplace-catalog";
+import { useMarketplacePurchase } from "../hooks/use-marketplace-purchase";
+import { useAutonConfig } from "../hooks/use-auton-config";
+import { useSolanaWallet } from "../hooks/use-solana-wallet";
+import type { MarketplaceContract } from "../lib/api/marketplace";
+import { formatUsdcFromMicro } from "../lib/solana/usdc-transfer";
 import { LoginModal } from "./login-modal";
 
-const TYPE_FILTERS: { id: "all" | ContractType; label: string }[] = [
+const TYPE_FILTERS: { id: "all" | "future" | "capacity"; label: string }[] = [
   { id: "all", label: "All" },
   { id: "future", label: "Futures" },
   { id: "capacity", label: "Capacity" },
@@ -24,11 +26,15 @@ function ContractCard({
   userBalance,
   onPurchase,
 }: {
-  contract: ComputeContract;
+  contract: MarketplaceContract;
   userBalance?: string;
-  onPurchase: (contract: ComputeContract) => void;
+  onPurchase: (contract: MarketplaceContract) => void;
 }) {
   const savings = hedgeSavingsPercent(contract);
+  const modelLabel =
+    contract.models.length > 0
+      ? contract.models.map((model) => model.id).join(", ")
+      : "Auton provider network (GPU workers)";
 
   return (
     <article className="flex h-full flex-col rounded-2xl border border-white/15 bg-white/[0.02] p-5 transition-colors hover:border-white/25 hover:bg-white/[0.04] md:p-6">
@@ -72,7 +78,7 @@ function ContractCard({
 
       <div className="pixel-sans mb-4 flex flex-wrap gap-2 text-xs text-white/50">
         <span className="rounded-md border border-white/10 px-2 py-1">
-          Save {savings}%
+          {savings > 0 ? `Save ${savings}%` : "OpenRouter spot"}
         </span>
         <span className="rounded-md border border-white/10 px-2 py-1">
           Exp {contract.expiry}
@@ -92,8 +98,8 @@ function ContractCard({
       </ul>
 
       <div className="pixel-sans mb-4 text-xs text-white/40">
-        <span className="text-white/50">Models: </span>
-        {contract.models.join(", ")}
+        <span className="text-white/50">OpenRouter models: </span>
+        {modelLabel}
       </div>
 
       {userBalance !== undefined && (
@@ -128,15 +134,17 @@ function PurchaseModal({
   purchasing,
   error,
   tokenAmount,
+  paymentRequired,
   onTokenAmountChange,
   onClose,
   onConfirm,
 }: {
-  contract: ComputeContract | null;
+  contract: MarketplaceContract | null;
   open: boolean;
   purchasing: boolean;
   error: string | null;
   tokenAmount: string;
+  paymentRequired: boolean;
   onTokenAmountChange: (value: string) => void;
   onClose: () => void;
   onConfirm: () => void;
@@ -192,7 +200,8 @@ function PurchaseModal({
         />
 
         <p className="pixel-sans mt-3 text-xs text-white/45">
-          Est. cost ~ ${Number.isFinite(estimatedCost) ? estimatedCost.toFixed(2) : "0.00"}{" "}
+          {paymentRequired ? "Pay" : "Est. cost"} ~ $
+          {Number.isFinite(estimatedCost) ? estimatedCost.toFixed(2) : "0.00"}{" "}
           USDC · Expires {contract.expiry}
         </p>
 
@@ -217,13 +226,20 @@ function PurchaseModal({
             disabled={purchasing}
             className="pixel-serif flex-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3 text-sm text-emerald-400 hover:border-emerald-500/50 disabled:opacity-50"
           >
-            {purchasing ? "Purchasing..." : "Confirm purchase"}
+            {purchasing
+              ? paymentRequired
+                ? "Confirm in wallet..."
+                : "Purchasing..."
+              : paymentRequired
+                ? "Pay USDC & purchase"
+                : "Confirm purchase"}
           </button>
         </div>
 
         <p className="pixel-sans mt-4 text-[10px] leading-relaxed text-white/30">
-          Credits your forward compute balance immediately. On-chain settlement
-          integration coming soon.
+          {paymentRequired
+            ? "You will approve a USDC transfer to the Auton treasury, then your forward compute balance credits after on-chain confirmation."
+            : "Credits your forward compute balance immediately (demo mode)."}
         </p>
       </div>
     </div>
@@ -234,9 +250,9 @@ export function MarketplacePage() {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(initialQuery);
-  const [typeFilter, setTypeFilter] = useState<"all" | ContractType>("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | "future" | "capacity">("all");
   const [loginOpen, setLoginOpen] = useState(false);
-  const [purchaseTarget, setPurchaseTarget] = useState<ComputeContract | null>(
+  const [purchaseTarget, setPurchaseTarget] = useState<MarketplaceContract | null>(
     null,
   );
   const [tokenAmount, setTokenAmount] = useState("");
@@ -246,7 +262,12 @@ export function MarketplacePage() {
 
   const navigate = useNavigate();
   const { authenticated, hasSession, syncing } = useBackendSession();
+  const { address } = useSolanaWallet();
   const { data, refresh } = useDashboard(authenticated && hasSession);
+  const { config } = useAutonConfig();
+  const { catalog, contracts, loading: catalogLoading } = useMarketplaceCatalog();
+  const { purchase, paying } = useMarketplacePurchase();
+  const paymentRequired = config?.marketplacePaymentRequired ?? catalog.paymentRequired;
 
   const balanceByTier = useMemo(() => {
     const map = new Map<string, string>();
@@ -259,22 +280,27 @@ export function MarketplacePage() {
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
 
-    return COMPUTE_CONTRACTS.filter((contract) => {
+    return contracts.filter((contract) => {
       const matchesType =
         typeFilter === "all" || contract.type === typeFilter;
       const matchesQuery =
         !normalized ||
         contract.name.toLowerCase().includes(normalized) ||
         contract.tier.toLowerCase().includes(normalized) ||
-        contract.models.some((model) =>
+        contract.modelIds.some((model) =>
           model.toLowerCase().includes(normalized),
+        ) ||
+        contract.models.some(
+          (model) =>
+            model.name.toLowerCase().includes(normalized) ||
+            model.id.toLowerCase().includes(normalized),
         );
 
       return matchesType && matchesQuery;
     });
-  }, [query, typeFilter]);
+  }, [query, typeFilter, contracts]);
 
-  const handlePurchaseClick = (contract: ComputeContract) => {
+  const handlePurchaseClick = (contract: MarketplaceContract) => {
     if (!authenticated) {
       setLoginOpen(true);
       return;
@@ -286,6 +312,14 @@ export function MarketplacePage() {
           ? "Connecting to backend — try again in a moment."
           : "Could not connect to backend. Refresh and sign in again.",
       );
+      return;
+    }
+
+    if (paymentRequired && !address) {
+      setPurchaseError(
+        "Connect a Solana wallet to pay with USDC. Twitter-only login cannot send on-chain payments.",
+      );
+      setLoginOpen(true);
       return;
     }
 
@@ -310,14 +344,16 @@ export function MarketplacePage() {
     setPurchaseError(null);
 
     try {
-      const result = await purchaseComputeContract(
-        purchaseTarget.tier,
-        amount,
-      );
+      const result = await purchase(purchaseTarget.tier, amount);
       await refresh();
       setPurchaseTarget(null);
+      const usdcPaid = result.payment
+        ? formatUsdcFromMicro(result.payment.usdcAmountMicro)
+        : null;
       setPurchaseSuccess(
-        `Purchased ${formatTokenMillions(amount)} tokens on ${purchaseTarget.name}. Balance: ${formatTokenMillions(Number(result.balance.tokenBalanceRemaining))}.`,
+        usdcPaid
+          ? `Paid ${usdcPaid} USDC for ${formatTokenMillions(amount)} tokens on ${purchaseTarget.name}. Balance: ${formatTokenMillions(Number(result.balance.tokenBalanceRemaining))}.`
+          : `Purchased ${formatTokenMillions(amount)} tokens on ${purchaseTarget.name}. Balance: ${formatTokenMillions(Number(result.balance.tokenBalanceRemaining))}.`,
       );
     } catch (err) {
       setPurchaseError(
@@ -361,10 +397,25 @@ export function MarketplacePage() {
             Compute Marketplace
           </h1>
           <p className="pixel-sans mt-4 max-w-3xl text-sm leading-relaxed text-white/60 md:text-base">
-            Lock in fixed inference rates with forward contracts. Hedge spot
-            volatility, guarantee GPU capacity, and route agents through the
-            Auton gateway — no intermediaries.
+            Lock in fixed inference rates with forward contracts. Models and spot
+            pricing sync from OpenRouter; gateway routes to the same model IDs.
           </p>
+          {catalog.openRouterSyncedAt && (
+            <p className="pixel-sans mt-2 text-xs text-emerald-400/70">
+              OpenRouter catalog synced{" "}
+              {new Date(catalog.openRouterSyncedAt).toLocaleString()}
+            </p>
+          )}
+          {catalog.openRouterError && (
+            <p className="pixel-sans mt-2 text-xs text-amber-400/80">
+              OpenRouter sync: {catalog.openRouterError}
+            </p>
+          )}
+          {catalogLoading && (
+            <p className="pixel-sans mt-2 text-xs text-white/40">
+              Loading live model catalog...
+            </p>
+          )}
         </div>
 
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -492,7 +543,8 @@ export function MarketplacePage() {
       <PurchaseModal
         contract={purchaseTarget}
         open={purchaseTarget !== null}
-        purchasing={purchasing}
+        purchasing={purchasing || paying}
+        paymentRequired={paymentRequired}
         error={purchaseError}
         tokenAmount={tokenAmount}
         onTokenAmountChange={setTokenAmount}

@@ -4,6 +4,9 @@ export type AutonPublicConfig = {
   autoTokenMint: string;
   masterVaultWallet: string;
   autoTokenDecimals: number;
+  usdcTokenMint: string;
+  usdcTokenDecimals: number;
+  marketplacePaymentRequired: boolean;
   gatewayPath: string;
 };
 
@@ -11,6 +14,9 @@ const emptyConfig: AutonPublicConfig = {
   autoTokenMint: "",
   masterVaultWallet: "",
   autoTokenDecimals: 6,
+  usdcTokenMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  usdcTokenDecimals: 6,
+  marketplacePaymentRequired: true,
   gatewayPath: "/api/v1/gateway/v1/chat/completions",
 };
 
@@ -34,8 +40,13 @@ export async function fetchPublicConfig(): Promise<AutonPublicConfig> {
     const response = await fetch(`${getBackendUrl()}/api/v1/config`);
     if (!response.ok) throw new Error(`config ${response.status}`);
 
-    const data = (await response.json()) as AutonPublicConfig;
-    cached = { ...emptyConfig, ...data };
+    const data = (await response.json()) as Partial<AutonPublicConfig>;
+    cached = {
+      ...emptyConfig,
+      ...data,
+      marketplacePaymentRequired:
+        data.marketplacePaymentRequired ?? emptyConfig.marketplacePaymentRequired,
+    };
     return { ...cached, ...pickDefined(envOverrides()) };
   } catch {
     const overrides = envOverrides();
