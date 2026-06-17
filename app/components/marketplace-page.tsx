@@ -14,6 +14,7 @@ import { useSolanaWallet } from "../hooks/use-solana-wallet";
 import type { MarketplaceContract } from "../lib/api/marketplace";
 import { formatUsdcFromMicro } from "../lib/solana/usdc-transfer";
 import { LoginModal } from "./login-modal";
+import { PixelBackground } from "./pixel-background";
 
 const TYPE_FILTERS: { id: "all" | "future" | "capacity"; label: string }[] = [
   { id: "all", label: "All" },
@@ -37,24 +38,24 @@ function ContractCard({
       : "Auton provider network (GPU workers)";
 
   return (
-    <article className="flex h-full flex-col rounded-2xl border border-white/15 bg-white/[0.02] p-5 transition-colors hover:border-white/25 hover:bg-white/[0.04] md:p-6">
+    <article className="flex h-full flex-col rounded-2xl border border-black/10 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition-colors hover:border-black/20 hover:bg-white md:p-6">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <div className="pixel-sans text-xs tracking-widest text-[#80a0c1]/80 uppercase">
+          <div className="pixel-sans text-xs tracking-widest text-[#5a7a9a] uppercase">
             {contract.tier}
           </div>
-          <h2 className="pixel-serif mt-1 text-xl text-white md:text-2xl">
+          <h2 className="pixel-serif mt-1 text-xl text-black md:text-2xl">
             {contract.name}
           </h2>
-          <p className="pixel-sans mt-2 text-sm text-white/60">
+          <p className="pixel-sans mt-2 text-sm text-black/60">
             {contract.subtitle}
           </p>
         </div>
         <span
           className={`pixel-sans shrink-0 rounded-lg border px-2.5 py-1 text-xs ${
             contract.type === "future"
-              ? "border-emerald-500/30 text-emerald-400"
-              : "border-[#80a0c1]/30 text-[#80a0c1]"
+              ? "border-emerald-500/30 text-emerald-700"
+              : "border-[#80a0c1]/40 text-[#5a7a9a]"
           }`}
         >
           {contract.type === "future" ? "Future" : "Capacity"}
@@ -62,48 +63,48 @@ function ContractCard({
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-white/10 bg-black/40 p-3">
-          <div className="pixel-sans text-xs text-white/40">Locked rate</div>
-          <div className="pixel-serif mt-1 text-lg text-emerald-400">
+        <div className="rounded-xl border border-black/8 bg-black/[0.03] p-3">
+          <div className="pixel-sans text-xs text-black/45">Locked rate</div>
+          <div className="pixel-serif mt-1 text-lg text-emerald-700">
             {formatRatePerM(contract.lockedRatePerM)}
           </div>
         </div>
-        <div className="rounded-xl border border-white/10 bg-black/40 p-3">
-          <div className="pixel-sans text-xs text-white/40">Spot</div>
-          <div className="pixel-serif mt-1 text-lg text-white/70 line-through decoration-white/30">
+        <div className="rounded-xl border border-black/8 bg-black/[0.03] p-3">
+          <div className="pixel-sans text-xs text-black/45">Spot</div>
+          <div className="pixel-serif mt-1 text-lg text-black/50 line-through decoration-black/25">
             {formatRatePerM(contract.spotRatePerM)}
           </div>
         </div>
       </div>
 
-      <div className="pixel-sans mb-4 flex flex-wrap gap-2 text-xs text-white/50">
-        <span className="rounded-md border border-white/10 px-2 py-1">
+      <div className="pixel-sans mb-4 flex flex-wrap gap-2 text-xs text-black/55">
+        <span className="rounded-md border border-black/10 px-2 py-1">
           {savings > 0 ? `Save ${savings}%` : "OpenRouter spot"}
         </span>
-        <span className="rounded-md border border-white/10 px-2 py-1">
+        <span className="rounded-md border border-black/10 px-2 py-1">
           Exp {contract.expiry}
         </span>
-        <span className="rounded-md border border-white/10 px-2 py-1">
+        <span className="rounded-md border border-black/10 px-2 py-1">
           Min {formatTokenMillions(contract.minPurchaseTokens)} tokens
         </span>
       </div>
 
-      <ul className="pixel-sans mb-4 space-y-1.5 text-xs text-white/60">
+      <ul className="pixel-sans mb-4 space-y-1.5 text-xs text-black/60">
         {contract.features.map((feature) => (
           <li key={feature} className="flex items-center gap-2">
-            <span className="text-emerald-400/80">▸</span>
+            <span className="text-emerald-600/80">▸</span>
             {feature}
           </li>
         ))}
       </ul>
 
-      <div className="pixel-sans mb-4 text-xs text-white/40">
-        <span className="text-white/50">OpenRouter models: </span>
+      <div className="pixel-sans mb-4 text-xs text-black/45">
+        <span className="text-black/55">OpenRouter models: </span>
         {modelLabel}
       </div>
 
       {userBalance !== undefined && (
-        <div className="pixel-sans mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-400/90">
+        <div className="pixel-sans mb-4 rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-800/90">
           Your balance: {formatTokenMillions(Number(userBalance))} tokens
           {Number(userBalance) <= 0 ? " — purchase to activate" : ""}
         </div>
@@ -112,14 +113,14 @@ function ContractCard({
       <div className="mt-auto flex gap-2">
         <Link
           to={`/dashboard?tier=${encodeURIComponent(contract.tier)}`}
-          className="pixel-serif flex-1 rounded-xl border border-white/15 bg-white/[0.06] py-3 text-center text-sm text-white transition-colors hover:border-white/30"
+          className="pixel-serif flex-1 rounded-xl border border-black/15 bg-black/[0.04] py-3 text-center text-sm text-black transition-colors hover:border-black/25"
         >
           Manage
         </Link>
         <button
           type="button"
           onClick={() => onPurchase(contract)}
-          className="pixel-serif flex-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3 text-sm text-emerald-400 transition-colors hover:border-emerald-500/50"
+          className="pixel-serif flex-1 rounded-xl border border-emerald-600/30 bg-emerald-600/10 py-3 text-sm text-emerald-800 transition-colors hover:border-emerald-600/45"
         >
           Purchase
         </button>
@@ -168,25 +169,25 @@ function PurchaseModal({
         aria-label="Close"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full max-w-md border border-white/15 bg-black p-6 shadow-2xl md:p-8">
+      <div className="relative z-10 w-full max-w-md border border-black/10 bg-white p-6 shadow-2xl md:p-8">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h2 className="pixel-serif text-xl text-white">{contract.name}</h2>
-            <p className="pixel-sans mt-1 text-xs text-white/50">
+            <h2 className="pixel-serif text-xl text-black">{contract.name}</h2>
+            <p className="pixel-sans mt-1 text-xs text-black/50">
               {contract.tier} · {formatRatePerM(contract.lockedRatePerM)} locked
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-white/60 hover:text-white"
+            className="text-black/50 hover:text-black"
             aria-label="Close"
           >
             ✕
           </button>
         </div>
 
-        <label className="pixel-sans block text-xs text-white/50">
+        <label className="pixel-sans block text-xs text-black/50">
           Token amount (min {formatTokenMillions(contract.minPurchaseTokens)})
         </label>
         <input
@@ -196,17 +197,17 @@ function PurchaseModal({
           onChange={(event) =>
             onTokenAmountChange(event.target.value.replace(/[^\d]/g, ""))
           }
-          className="pixel-sans mt-2 w-full rounded-xl border border-white/15 bg-black px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none"
+          className="pixel-sans mt-2 w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-sm text-black focus:border-black/30 focus:outline-none"
         />
 
-        <p className="pixel-sans mt-3 text-xs text-white/45">
+        <p className="pixel-sans mt-3 text-xs text-black/45">
           {paymentRequired ? "Pay" : "Est. cost"} ~ $
           {Number.isFinite(estimatedCost) ? estimatedCost.toFixed(2) : "0.00"}{" "}
           USDC · Expires {contract.expiry}
         </p>
 
         {error && (
-          <p className="pixel-sans mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+          <p className="pixel-sans mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-700">
             {error}
           </p>
         )}
@@ -216,7 +217,7 @@ function PurchaseModal({
             type="button"
             onClick={onClose}
             disabled={purchasing}
-            className="pixel-serif flex-1 rounded-xl border border-white/15 py-3 text-sm text-white/70 hover:border-white/30 disabled:opacity-50"
+            className="pixel-serif flex-1 rounded-xl border border-black/15 py-3 text-sm text-black/60 hover:border-black/30 disabled:opacity-50"
           >
             Cancel
           </button>
@@ -224,7 +225,7 @@ function PurchaseModal({
             type="button"
             onClick={onConfirm}
             disabled={purchasing}
-            className="pixel-serif flex-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3 text-sm text-emerald-400 hover:border-emerald-500/50 disabled:opacity-50"
+            className="pixel-serif flex-1 rounded-xl border border-emerald-600/30 bg-emerald-600/10 py-3 text-sm text-emerald-800 hover:border-emerald-600/45 disabled:opacity-50"
           >
             {purchasing
               ? paymentRequired
@@ -236,7 +237,7 @@ function PurchaseModal({
           </button>
         </div>
 
-        <p className="pixel-sans mt-4 text-[10px] leading-relaxed text-white/30">
+        <p className="pixel-sans mt-4 text-[10px] leading-relaxed text-black/35">
           {paymentRequired
             ? "You will approve a USDC transfer to the Auton treasury, then your forward compute balance credits after on-chain confirmation."
             : "Credits your forward compute balance immediately (demo mode)."}
@@ -365,25 +366,29 @@ export function MarketplacePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <header className="border-b border-white/10 px-4 py-4 md:px-6">
+    <div className="relative min-h-screen bg-white">
+      <div className="pointer-events-none fixed inset-0 z-0" aria-hidden>
+        <PixelBackground variant="fine" />
+      </div>
+
+      <header className="relative z-10 border-b border-black/10 bg-white/70 px-4 py-4 backdrop-blur-sm md:px-6">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <Link
             to="/"
-            className="pixel-serif-logo text-lg font-bold text-white md:text-xl"
+            className="pixel-serif-logo text-lg font-bold text-black md:text-xl"
           >
             AUTON
           </Link>
           <div className="flex items-center gap-4">
             <Link
               to="/dashboard"
-              className="pixel-sans text-sm text-white/60 transition-colors hover:text-white"
+              className="pixel-sans text-sm text-black/60 transition-colors hover:text-black"
             >
               Dashboard
             </Link>
             <Link
               to="/"
-              className="pixel-sans text-sm text-white/60 transition-colors hover:text-white"
+              className="pixel-sans text-sm text-black/60 transition-colors hover:text-black"
             >
               ← Home
             </Link>
@@ -391,28 +396,28 @@ export function MarketplacePage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
+      <main className="relative z-10 mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-8 md:mb-10">
-          <h1 className="pixel-serif text-3xl text-white md:text-4xl">
+          <h1 className="pixel-serif text-3xl text-black md:text-4xl">
             Compute Marketplace
           </h1>
-          <p className="pixel-sans mt-4 max-w-3xl text-sm leading-relaxed text-white/60 md:text-base">
+          <p className="pixel-sans mt-4 max-w-3xl text-sm leading-relaxed text-black/60 md:text-base">
             Lock in fixed inference rates with forward contracts. Models and spot
             pricing sync from OpenRouter; gateway routes to the same model IDs.
           </p>
           {catalog.openRouterSyncedAt && (
-            <p className="pixel-sans mt-2 text-xs text-emerald-400/70">
+            <p className="pixel-sans mt-2 text-xs text-emerald-700/80">
               OpenRouter catalog synced{" "}
               {new Date(catalog.openRouterSyncedAt).toLocaleString()}
             </p>
           )}
           {catalog.openRouterError && (
-            <p className="pixel-sans mt-2 text-xs text-amber-400/80">
+            <p className="pixel-sans mt-2 text-xs text-amber-700/80">
               OpenRouter sync: {catalog.openRouterError}
             </p>
           )}
           {catalogLoading && (
-            <p className="pixel-sans mt-2 text-xs text-white/40">
+            <p className="pixel-sans mt-2 text-xs text-black/40">
               Loading live model catalog...
             </p>
           )}
@@ -424,7 +429,7 @@ export function MarketplacePage() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search models, tiers, or capacity..."
-            className="pixel-sans w-full rounded-xl border border-white/15 bg-black px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none md:max-w-md"
+            className="pixel-sans w-full rounded-xl border border-black/15 bg-white/80 px-4 py-3 text-sm text-black placeholder:text-black/40 backdrop-blur-sm focus:border-black/30 focus:outline-none md:max-w-md"
           />
           <div className="flex gap-2">
             {TYPE_FILTERS.map((filter) => (
@@ -434,8 +439,8 @@ export function MarketplacePage() {
                 onClick={() => setTypeFilter(filter.id)}
                 className={`pixel-sans rounded-lg border px-3 py-2 text-xs transition-colors ${
                   typeFilter === filter.id
-                    ? "border-white/30 bg-white/10 text-white"
-                    : "border-white/10 text-white/50 hover:text-white"
+                    ? "border-black/25 bg-black/5 text-black"
+                    : "border-black/10 text-black/50 hover:text-black"
                 }`}
               >
                 {filter.label}
@@ -445,7 +450,7 @@ export function MarketplacePage() {
         </div>
 
         {!authenticated && (
-          <div className="pixel-sans mb-8 rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-white/60">
+          <div className="pixel-sans mb-8 rounded-2xl border border-black/10 bg-white/70 px-4 py-3 text-sm text-black/60 backdrop-blur-sm">
             <button
               type="button"
               onClick={() => setLoginOpen(true)}
@@ -458,7 +463,7 @@ export function MarketplacePage() {
         )}
 
         {purchaseSuccess && (
-          <div className="pixel-sans mb-8 flex flex-col gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-300/90 sm:flex-row sm:items-center sm:justify-between">
+          <div className="pixel-sans mb-8 flex flex-col gap-3 rounded-2xl border border-emerald-600/25 bg-emerald-600/5 px-4 py-3 text-sm text-emerald-900/90 sm:flex-row sm:items-center sm:justify-between">
             <span>{purchaseSuccess}</span>
             <button
               type="button"
@@ -471,7 +476,7 @@ export function MarketplacePage() {
         )}
 
         {purchaseError && !purchaseTarget && (
-          <div className="pixel-sans mb-8 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <div className="pixel-sans mb-8 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700">
             {purchaseError}
           </div>
         )}
@@ -492,13 +497,13 @@ export function MarketplacePage() {
         </div>
 
         {filtered.length === 0 && (
-          <p className="pixel-sans mt-12 text-center text-sm text-white/40">
+          <p className="pixel-sans mt-12 text-center text-sm text-black/40">
             No contracts match your search.
           </p>
         )}
 
-        <section className="mt-16 border-t border-white/10 pt-12">
-          <h2 className="pixel-serif mb-6 text-2xl text-white">
+        <section className="mt-16 border-t border-black/10 pt-12">
+          <h2 className="pixel-serif mb-6 text-2xl text-black">
             How it works
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -521,15 +526,15 @@ export function MarketplacePage() {
             ].map((item) => (
               <div
                 key={item.step}
-                className="rounded-2xl border border-white/10 bg-white/[0.02] p-5"
+                className="rounded-2xl border border-black/10 bg-white/70 p-5 backdrop-blur-sm"
               >
-                <div className="pixel-serif text-2xl text-white/40">
+                <div className="pixel-serif text-2xl text-black/30">
                   {item.step}
                 </div>
-                <h3 className="pixel-serif mt-2 text-lg text-white">
+                <h3 className="pixel-serif mt-2 text-lg text-black">
                   {item.title}
                 </h3>
-                <p className="pixel-sans mt-2 text-sm text-white/60">
+                <p className="pixel-sans mt-2 text-sm text-black/60">
                   {item.body}
                 </p>
               </div>

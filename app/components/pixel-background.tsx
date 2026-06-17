@@ -20,7 +20,13 @@ function densityAt(x: number, y: number) {
   return Math.min(d, 1);
 }
 
-export function PixelBackground() {
+export type PixelBackgroundVariant = "clustered" | "fine";
+
+export function PixelBackground({
+  variant = "clustered",
+}: {
+  variant?: PixelBackgroundVariant;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -44,6 +50,25 @@ export function PixelBackground() {
       const h = window.innerHeight;
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, w, h);
+
+      if (variant === "fine") {
+        const spacing = 10;
+        const cols = Math.ceil(w / spacing);
+        const rows = Math.ceil(h / spacing);
+
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            const hash = Math.sin(col * 127.1 + row * 311.7) * 43758.5453;
+            const rand = hash - Math.floor(hash);
+            if (rand > 0.38) continue;
+
+            const alpha = 0.05 + rand * 0.12;
+            ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+            ctx.fillRect(col * spacing + 1, row * spacing + 1, 1, 1);
+          }
+        }
+        return;
+      }
 
       const spacing = 5;
       const cols = Math.ceil(w / spacing);
@@ -80,7 +105,7 @@ export function PixelBackground() {
     return () => {
       window.removeEventListener("resize", render);
     };
-  }, []);
+  }, [variant]);
 
   return (
     <canvas
