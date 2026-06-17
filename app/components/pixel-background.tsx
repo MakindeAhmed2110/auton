@@ -42,7 +42,7 @@ export function PixelBackground() {
     const draw = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      ctx.fillStyle = "#000";
+      ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, w, h);
 
       const spacing = 5;
@@ -61,8 +61,8 @@ export function PixelBackground() {
           const rand = hash - Math.floor(hash);
 
           if (rand < threshold) {
-            const alpha = 0.15 + d * 0.55;
-            ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+            const alpha = 0.12 + d * 0.5;
+            ctx.fillStyle = `rgba(0,0,0,${alpha})`;
             ctx.fillRect(col * spacing, row * spacing, 1.5, 1.5);
           }
         }

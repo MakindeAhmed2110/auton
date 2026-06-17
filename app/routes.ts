@@ -6,4 +6,5 @@ export default [
   route("dashboard", "routes/dashboard.tsx"),
   route("staking", "routes/staking.tsx"),
   route("treasury", "routes/treasury.tsx"),
+  route("earn", "routes/earn.tsx"),
 ] satisfies RouteConfig;

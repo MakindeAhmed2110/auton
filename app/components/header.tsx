@@ -4,6 +4,7 @@ import { LoginButton } from "./login-button";
 
 const NAV_LINKS = [
   { label: "Markets", href: "/markets" },
+  { label: "Earn", href: "/earn" },
   { label: "Dashboard", href: "/dashboard" },
   { label: "Docs", href: "#docs" },
 ];
@@ -38,15 +39,34 @@ function TelegramIcon() {
   );
 }
 
-export function Header() {
+export function Header({ variant = "dark" }: { variant?: "light" | "dark" }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isLight = variant === "light";
+
+  const navShell = isLight
+    ? "border-black/10 bg-white/85"
+    : "border-white/10 bg-black/80";
+  const logo = isLight ? "text-black" : "text-white";
+  const linkClass = isLight
+    ? "text-black/60 hover:text-black"
+    : "text-white/70 hover:text-white";
+  const icon = isLight
+    ? "text-black/60 hover:text-black"
+    : "text-white/70 hover:text-white";
+  const menuBg = isLight
+    ? "border-black/10 bg-white/95"
+    : "border-white/10 bg-black/95";
+  const dropdownBg = isLight
+    ? "border-black/10 bg-white/95"
+    : "border-white/10 bg-black/95";
+  const burger = isLight ? "bg-black" : "bg-white";
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 py-4">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
-        <nav className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/80 px-4 py-3 backdrop-blur-sm md:px-6">
+        <nav className={`flex items-center justify-between rounded-2xl border px-4 py-3 backdrop-blur-sm md:px-6 ${navShell}`}>
           <div className="flex-1">
-            <a href="/" className="pixel-serif-logo flex items-center text-lg font-bold text-white md:text-xl">
+            <a href="/" className={`pixel-serif-logo flex items-center text-lg font-bold md:text-xl ${logo}`}>
               AUTON
             </a>
           </div>
@@ -56,27 +76,27 @@ export function Header() {
               <Link
                 key={link.label}
                 to={link.href}
-                className="pixel-sans text-sm tracking-wide text-white/70 transition-colors hover:text-white"
+                className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
               >
                 {link.label}
               </Link>
             ))}
             <div className="group relative">
-              <span className="pixel-sans inline-flex cursor-pointer items-center gap-1 text-sm tracking-wide text-white/70 transition-colors group-hover:text-white">
+              <span className={`pixel-sans inline-flex cursor-pointer items-center gap-1 text-sm tracking-wide transition-colors ${linkClass}`}>
                 <span className="dollar">$</span>AUTO
                 <svg width="8" height="6" viewBox="0 0 8 6" fill="currentColor" className="mt-0.5">
                   <path d="M0 0h8L4 6z" />
                 </svg>
               </span>
               <div className="absolute top-full left-1/2 hidden -translate-x-1/2 pt-3 group-hover:block">
-                <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/95 px-5 py-3 whitespace-nowrap">
-                  {AUTO_LINKS.map((link) => (
+                <div className={`flex flex-col gap-3 rounded-xl border px-5 py-3 whitespace-nowrap ${dropdownBg}`}>
+                  {AUTO_LINKS.map((autoLink) => (
                     <a
-                      key={link.label}
-                      href={link.href}
-                      className="pixel-sans text-sm tracking-wide text-white/70 transition-colors hover:text-white"
+                      key={autoLink.label}
+                      href={autoLink.href}
+                      className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
                     >
-                      {link.label}
+                      {autoLink.label}
                     </a>
                   ))}
                 </div>
@@ -89,7 +109,7 @@ export function Header() {
               href="https://github.com/Autonai-sol"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-white/70 transition-colors hover:text-white"
+              className={`p-2 transition-colors ${icon}`}
               aria-label="GitHub"
             >
               <GitHubIcon />
@@ -98,7 +118,7 @@ export function Header() {
               href="https://x.com/autonai_sol"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-white/70 transition-colors hover:text-white"
+              className={`p-2 transition-colors ${icon}`}
               aria-label="X"
             >
               <XIcon />
@@ -107,46 +127,46 @@ export function Header() {
               href="https://t.me/autonia_sol"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-white/70 transition-colors hover:text-white"
+              className={`p-2 transition-colors ${icon}`}
               aria-label="Telegram"
             >
               <TelegramIcon />
             </a>
-            <LoginButton />
+            <LoginButton variant={variant} />
             <button
               type="button"
               className="flex h-8 w-8 flex-col items-center justify-center gap-1.5 md:hidden"
               aria-label="Toggle menu"
               onClick={() => setMenuOpen((open) => !open)}
             >
-              <span className={`block h-0.5 w-5 bg-white transition-transform ${menuOpen ? "translate-y-2 rotate-45" : ""}`} />
-              <span className={`block h-0.5 w-5 bg-white transition-opacity ${menuOpen ? "opacity-0" : ""}`} />
-              <span className={`block h-0.5 w-5 bg-white transition-transform ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`} />
+              <span className={`block h-0.5 w-5 transition-transform ${burger} ${menuOpen ? "translate-y-2 rotate-45" : ""}`} />
+              <span className={`block h-0.5 w-5 transition-opacity ${burger} ${menuOpen ? "opacity-0" : ""}`} />
+              <span className={`block h-0.5 w-5 transition-transform ${burger} ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`} />
             </button>
           </div>
         </nav>
 
         {menuOpen && (
-          <div className="mt-2 rounded-2xl border border-white/10 bg-black/95 p-4 md:hidden">
+          <div className={`mt-2 rounded-2xl border p-4 md:hidden ${menuBg}`}>
             <div className="flex flex-col gap-3">
-              {NAV_LINKS.map((link) => (
+              {NAV_LINKS.map((navLink) => (
                 <Link
-                  key={link.label}
-                  to={link.href}
-                  className="pixel-sans text-sm tracking-wide text-white/70 transition-colors hover:text-white"
+                  key={navLink.label}
+                  to={navLink.href}
+                  className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {link.label}
+                  {navLink.label}
                 </Link>
               ))}
-              {AUTO_LINKS.map((link) => (
+              {AUTO_LINKS.map((autoLink) => (
                 <a
-                  key={link.label}
-                  href={link.href}
-                  className="pixel-sans text-sm tracking-wide text-white/70 transition-colors hover:text-white"
+                  key={autoLink.label}
+                  href={autoLink.href}
+                  className={`pixel-sans text-sm tracking-wide transition-colors ${linkClass}`}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {link.label}
+                  {autoLink.label}
                 </a>
               ))}
             </div>

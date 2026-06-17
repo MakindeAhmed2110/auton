@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { useBackendSession } from "../hooks/use-backend-session";
 import { useDashboard } from "../hooks/use-dashboard";
 import { useAutonConfig } from "../hooks/use-auton-config";
@@ -34,26 +34,29 @@ function StatCard({
   accent?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-white/15 bg-white/[0.02] p-5 md:p-6">
+    <div className="rounded-2xl border border-black/15 bg-black/[0.02] p-5 md:p-6">
       <div
-        className={`pixel-serif text-2xl md:text-3xl ${accent ? "text-emerald-400" : "text-white"}`}
+        className={`pixel-serif text-2xl md:text-3xl ${accent ? "text-emerald-600" : "text-black"}`}
       >
         {value}
       </div>
-      <div className="pixel-sans mt-2 text-sm text-white/60">{label}</div>
+      <div className="pixel-sans mt-2 text-sm text-black/60">{label}</div>
       {sub && (
-        <div className="pixel-sans mt-1 text-xs text-white/40">{sub}</div>
+        <div className="pixel-sans mt-1 text-xs text-black/40">{sub}</div>
       )}
     </div>
   );
 }
 
 export function DashboardPage() {
+  const [searchParams] = useSearchParams();
+  const highlightTier = searchParams.get("tier");
+
   const [loginOpen, setLoginOpen] = useState(false);
   const [keyName, setKeyName] = useState("");
   const [creatingKey, setCreatingKey] = useState(false);
 
-  const { ready, authenticated, address, hasSession, syncing, syncSession } =
+  const { ready, authenticated, address, hasSession, syncing, syncError, syncSession } =
     useBackendSession();
 
   const { data, loading, newKey, setNewKey, generateKey } = useDashboard(
@@ -74,25 +77,25 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <header className="border-b border-white/10 px-4 py-4 md:px-6">
+    <div className="min-h-screen bg-white">
+      <header className="border-b border-black/10 px-4 py-4 md:px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Link
             to="/"
-            className="pixel-serif-logo text-lg font-bold text-white md:text-xl"
+            className="pixel-serif-logo text-lg font-bold text-black md:text-xl"
           >
             AUTON
           </Link>
           <div className="flex items-center gap-4">
             <Link
               to="/markets"
-              className="pixel-sans text-sm text-white/60 transition-colors hover:text-white"
+              className="pixel-sans text-sm text-black/60 transition-colors hover:text-black"
             >
               Marketplace
             </Link>
             <Link
               to="/"
-              className="pixel-sans text-sm text-white/60 transition-colors hover:text-white"
+              className="pixel-sans text-sm text-black/60 transition-colors hover:text-black"
             >
               ← Home
             </Link>
@@ -102,36 +105,36 @@ export function DashboardPage() {
 
       <main className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-8 md:mb-10">
-          <h1 className="pixel-serif text-3xl text-white md:text-4xl">
+          <h1 className="pixel-serif text-3xl text-black md:text-4xl">
             Dashboard
           </h1>
-          <p className="pixel-sans mt-4 max-w-3xl text-sm leading-relaxed text-white/60 md:text-base">
+          <p className="pixel-sans mt-4 max-w-3xl text-sm leading-relaxed text-black/60 md:text-base">
             Manage API keys, forward compute balances, and staking yield. Route
             agents through the OpenAI-compatible gateway.
           </p>
           <div className="mt-3">
-            <BackendStatusBadge />
+            <BackendStatusBadge variant="light" />
           </div>
           {address && (
-            <p className="pixel-sans mt-3 text-xs text-white/40">
+            <p className="pixel-sans mt-3 text-xs text-black/40">
               wallet: {truncateAddress(address)}
             </p>
           )}
         </div>
 
         {!ready && (
-          <p className="pixel-sans text-sm text-white/50">Loading wallet...</p>
+          <p className="pixel-sans text-sm text-black/50">Loading wallet...</p>
         )}
 
         {ready && !authenticated && (
-          <div className="rounded-2xl border border-white/15 p-6 text-center">
-            <p className="pixel-sans text-sm text-white/60">
+          <div className="rounded-2xl border border-black/15 p-6 text-center">
+            <p className="pixel-sans text-sm text-black/60">
               Connect your Solana wallet to access your dashboard.
             </p>
             <button
               type="button"
               onClick={() => setLoginOpen(true)}
-              className="pixel-serif mt-4 rounded-xl border border-white/20 px-6 py-3 text-sm text-white transition-colors hover:border-white/40"
+              className="pixel-serif mt-4 rounded-xl border border-black/20 px-6 py-3 text-sm text-black transition-colors hover:border-black/40"
             >
               Connect wallet
             </button>
@@ -139,18 +142,28 @@ export function DashboardPage() {
         )}
 
         {ready && authenticated && !hasSession && (
-          <div className="rounded-2xl border border-white/15 p-6 text-center">
-            <p className="pixel-sans text-sm text-white/60">
-              Sign a message to activate your dashboard.
+          <div className="rounded-2xl border border-black/15 p-6 text-center">
+            <p className="pixel-sans text-sm text-black/60">
+              {syncing
+                ? "Connecting to Auton backend..."
+                : syncError
+                  ? "Could not load your account from the backend."
+                  : "Preparing your dashboard..."}
             </p>
-            <button
-              type="button"
-              onClick={() => syncSession()}
-              disabled={syncing}
-              className="pixel-serif mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-6 py-3 text-sm text-emerald-400 transition-colors hover:border-emerald-500/50 disabled:opacity-50"
-            >
-              {syncing ? "Signing..." : "Activate dashboard"}
-            </button>
+            {syncError && (
+              <p className="pixel-sans mt-2 whitespace-pre-line text-xs text-red-600/90">
+                {syncError}
+              </p>
+            )}
+            {syncError && !syncing && (
+              <button
+                type="button"
+                onClick={() => void syncSession()}
+                className="pixel-serif mt-4 rounded-xl border border-black/20 px-6 py-3 text-sm text-black transition-colors hover:border-black/40"
+              >
+                Retry
+              </button>
+            )}
           </div>
         )}
 
@@ -180,7 +193,7 @@ export function DashboardPage() {
 
             <section className="mt-10">
               <div className="mb-4 flex items-center justify-between gap-4">
-                <h2 className="pixel-serif text-xl text-white">
+                <h2 className="pixel-serif text-xl text-black">
                   Forward compute balances
                 </h2>
                 <Link
@@ -191,9 +204,15 @@ export function DashboardPage() {
                 </Link>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-white/15">
+              {highlightTier && (
+                <p className="pixel-sans mb-3 text-xs text-emerald-600/90">
+                  Showing contract: {highlightTier}
+                </p>
+              )}
+
+              <div className="overflow-hidden rounded-2xl border border-black/15">
                 <table className="pixel-sans w-full text-left text-sm">
-                  <thead className="border-b border-white/10 bg-white/[0.02] text-xs text-white/40">
+                  <thead className="border-b border-black/10 bg-black/[0.02] text-xs text-black/40">
                     <tr>
                       <th className="px-4 py-3 font-normal">Tier</th>
                       <th className="px-4 py-3 font-normal">Balance</th>
@@ -206,7 +225,7 @@ export function DashboardPage() {
                       <tr>
                         <td
                           colSpan={4}
-                          className="px-4 py-8 text-center text-white/40"
+                          className="px-4 py-8 text-center text-black/40"
                         >
                           No active contracts.{" "}
                           <Link to="/markets" className="text-[#80a0c1]">
@@ -218,23 +237,27 @@ export function DashboardPage() {
                     {data.computeBalances.map((balance) => (
                       <tr
                         key={balance.id}
-                        className="border-b border-white/5 last:border-0"
+                        className={`border-b border-black/5 last:border-0 ${
+                          highlightTier === balance.modelTier
+                            ? "bg-emerald-500/10"
+                            : ""
+                        }`}
                       >
-                        <td className="px-4 py-3 text-white">
+                        <td className="px-4 py-3 text-black">
                           {balance.modelTier}
                         </td>
-                        <td className="px-4 py-3 text-emerald-400">
+                        <td className="px-4 py-3 text-emerald-600">
                           {formatTokens(balance.tokenBalanceRemaining)} tokens
                         </td>
-                        <td className="px-4 py-3 text-white/60">
+                        <td className="px-4 py-3 text-black/60">
                           {new Date(balance.expiryDate).toLocaleDateString()}
                         </td>
                         <td className="px-4 py-3">
                           <span
                             className={`rounded-md border px-2 py-0.5 text-xs ${
                               balance.isExpired
-                                ? "border-red-500/30 text-red-400"
-                                : "border-emerald-500/30 text-emerald-400"
+                                ? "border-red-500/30 text-red-600"
+                                : "border-emerald-500/30 text-emerald-600"
                             }`}
                           >
                             {balance.isExpired ? "Expired" : "Active"}
@@ -248,8 +271,8 @@ export function DashboardPage() {
             </section>
 
             <section className="mt-10">
-              <h2 className="pixel-serif mb-4 text-xl text-white">API keys</h2>
-              <p className="pixel-sans mb-4 text-sm text-white/50">
+              <h2 className="pixel-serif mb-4 text-xl text-black">API keys</h2>
+              <p className="pixel-sans mb-4 text-sm text-black/50">
                 Use these keys as Bearer tokens against the Auton gateway.
               </p>
 
@@ -259,13 +282,13 @@ export function DashboardPage() {
                   value={keyName}
                   onChange={(event) => setKeyName(event.target.value)}
                   placeholder="Key name (e.g. production-agent)"
-                  className="pixel-sans flex-1 rounded-xl border border-white/15 bg-black px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none"
+                  className="pixel-sans flex-1 rounded-xl border border-black/15 bg-white px-4 py-3 text-sm text-black placeholder:text-black/40 focus:border-black/30 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={handleCreateKey}
                   disabled={creatingKey || !keyName.trim()}
-                  className="pixel-serif rounded-xl border border-white/15 bg-white/[0.06] px-6 py-3 text-sm text-white transition-colors hover:border-white/30 disabled:opacity-40"
+                  className="pixel-serif rounded-xl border border-black/15 bg-black/[0.06] px-6 py-3 text-sm text-black transition-colors hover:border-black/30 disabled:opacity-40"
                 >
                   {creatingKey ? "Creating..." : "Create key"}
                 </button>
@@ -273,16 +296,16 @@ export function DashboardPage() {
 
               {newKey && (
                 <div className="pixel-sans mb-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm">
-                  <p className="text-amber-200/90">
+                  <p className="text-amber-800/90">
                     Copy this key now — it won&apos;t be shown again.
                   </p>
-                  <code className="mt-2 block break-all text-xs text-white/80">
+                  <code className="mt-2 block break-all text-xs text-black/80">
                     {newKey}
                   </code>
                   <button
                     type="button"
                     onClick={() => setNewKey(null)}
-                    className="mt-3 text-xs text-white/50 hover:text-white"
+                    className="mt-3 text-xs text-black/50 hover:text-black"
                   >
                     Dismiss
                   </button>
@@ -293,13 +316,13 @@ export function DashboardPage() {
                 {data.apiKeys.map((key) => (
                   <div
                     key={key.id}
-                    className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3"
+                    className="flex items-center justify-between rounded-xl border border-black/10 bg-black/[0.02] px-4 py-3"
                   >
                     <div>
-                      <div className="pixel-sans text-sm text-white">
+                      <div className="pixel-sans text-sm text-black">
                         {key.name}
                       </div>
-                      <div className="pixel-sans text-xs text-white/40">
+                      <div className="pixel-sans text-xs text-black/40">
                         {key.key_prefix} ·{" "}
                         {new Date(key.created_at).toLocaleDateString()}
                       </div>
@@ -307,8 +330,8 @@ export function DashboardPage() {
                     <span
                       className={`pixel-sans rounded-md border px-2 py-0.5 text-xs ${
                         key.active
-                          ? "border-emerald-500/30 text-emerald-400"
-                          : "border-white/20 text-white/40"
+                          ? "border-emerald-500/30 text-emerald-600"
+                          : "border-black/20 text-black/40"
                       }`}
                     >
                       {key.active ? "Active" : "Inactive"}
@@ -318,15 +341,15 @@ export function DashboardPage() {
               </div>
             </section>
 
-            <section className="mt-10 rounded-2xl border border-white/15 bg-white/[0.02] p-5 md:p-6">
-              <h2 className="pixel-serif mb-3 text-lg text-white">
+            <section className="mt-10 rounded-2xl border border-black/15 bg-black/[0.02] p-5 md:p-6">
+              <h2 className="pixel-serif mb-3 text-lg text-black">
                 Gateway endpoint
               </h2>
-              <p className="pixel-sans mb-4 text-sm text-white/50">
+              <p className="pixel-sans mb-4 text-sm text-black/50">
                 Point any OpenAI-compatible client here. Authorization uses your
                 Auton API key.
               </p>
-              <code className="pixel-sans block overflow-x-auto rounded-lg border border-white/10 bg-black px-4 py-3 text-xs text-[#80a0c1]">
+              <code className="pixel-sans block overflow-x-auto rounded-lg border border-black/10 bg-black/[0.04] px-4 py-3 text-xs text-[#80a0c1]">
                 {gatewayUrl}
               </code>
             </section>

@@ -31,8 +31,8 @@ export function Landing() {
   };
 
   return (
-    <div className="relative bg-black">
-      <Header />
+    <div className="relative bg-white">
+      <Header variant="light" />
 
       <section className="relative h-screen overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -43,11 +43,11 @@ export function Landing() {
           <div className="-mt-24 w-full max-w-5xl space-y-6 text-center md:space-y-8">
             <div className="space-y-4">
               <div className="pixel-serif-wrapper">
-                <h1 className="pixel-serif text-4xl leading-none font-bold tracking-tight text-white md:text-6xl lg:text-7xl">
+                <h1 className="pixel-serif text-4xl leading-none font-bold tracking-tight text-black md:text-6xl lg:text-7xl">
                   AUTON
                 </h1>
               </div>
-              <p className="pixel-sans mx-auto max-w-2xl px-4 text-sm text-white/90 md:text-lg lg:text-xl">
+              <p className="pixel-sans mx-auto max-w-2xl px-4 text-sm text-black/80 md:text-lg lg:text-xl">
                 The derivatives layer for decentralized compute — hedge volatility,
                 guarantee capacity, earn yield.
               </p>
@@ -63,11 +63,11 @@ export function Landing() {
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Explore markets..."
-                  className="pixel-sans flex-1 rounded-xl border border-[#2a2a2a] bg-black px-3 py-3 text-sm text-white transition-colors placeholder:text-white/50 focus:border-[#3a3a3a] focus:outline-none md:px-4 md:text-lg"
+                  className="pixel-sans flex-1 rounded-xl border border-black/15 bg-white px-3 py-3 text-sm text-black transition-colors placeholder:text-black/40 focus:border-black/30 focus:outline-none md:px-4 md:text-lg"
                 />
                 <button
                   type="submit"
-                  className="flex items-center justify-center rounded-xl border border-[#2a2a2a] bg-black px-3 py-3 text-white transition-colors hover:border-[#3a3a3a] md:px-4"
+                  className="flex items-center justify-center rounded-xl border border-black/15 bg-white px-3 py-3 text-black transition-colors hover:border-black/30 md:px-4"
                   aria-label="Search"
                 >
                   <SendIcon />
@@ -75,7 +75,7 @@ export function Landing() {
               </div>
             </form>
 
-            <p className="pixel-sans mx-auto mt-6 max-w-xl px-4 text-xs text-white/70 md:text-sm">
+            <p className="pixel-sans mx-auto mt-6 max-w-xl px-4 text-xs text-black/55 md:text-sm">
               A permissionless protocol where providers, consumers, and liquidity
               participants trade compute derivatives on-chain.
             </p>
@@ -87,7 +87,7 @@ export function Landing() {
             href="/markets"
             className="group flex cursor-pointer flex-col items-center gap-2"
           >
-            <span className="pixel-sans text-xs tracking-widest text-white/70 uppercase transition-colors group-hover:text-white">
+            <span className="pixel-sans text-xs tracking-widest text-black/50 uppercase transition-colors group-hover:text-black">
               Scroll
             </span>
             <svg
@@ -95,7 +95,7 @@ export function Landing() {
               height="16"
               viewBox="0 0 16 16"
               fill="none"
-              className="text-white/70 transition-colors group-hover:text-white"
+              className="text-black/50 transition-colors group-hover:text-black"
             >
               <path
                 d="M8 2v12M3 9l5 5 5-5"

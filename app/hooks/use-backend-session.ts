@@ -1,88 +1,82 @@
-import { useCallback, useEffect, useState } from "react";
-import { useSignMessage } from "@privy-io/react-auth";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePrivy } from "@privy-io/react-auth";
 import { useSolanaWallet } from "./use-solana-wallet";
 import {
-  activateFallbackSession,
-  fetchLoginNonce,
   hasActiveSession,
-  loginWithWallet,
+  loginWithPrivy,
   logout as clearBackendToken,
 } from "../lib/api/autonClient";
 
-function encodeSignature(signature: Uint8Array | string): string {
-  if (typeof signature === "string") return signature;
-
-  const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-  const bytes = signature;
-  const digits = [0];
-
-  for (const byte of bytes) {
-    let carry = byte;
-    for (let i = 0; i < digits.length; i++) {
-      carry += digits[i] << 8;
-      digits[i] = carry % 58;
-      carry = (carry / 58) | 0;
-    }
-    while (carry > 0) {
-      digits.push(carry % 58);
-      carry = (carry / 58) | 0;
-    }
-  }
-
-  let result = "";
-  for (const byte of bytes) {
-    if (byte === 0) result += alphabet[0];
-    else break;
-  }
-  for (let i = digits.length - 1; i >= 0; i--) {
-    result += alphabet[digits[i]];
-  }
-  return result;
-}
-
+/**
+ * After Privy login, silently exchange the Privy access token for an Auton JWT
+ * so dashboard data comes from Supabase (not frontend fallbacks).
+ */
 export function useBackendSession() {
-  const { ready, authenticated, address } = useSolanaWallet();
-  const { signMessage } = useSignMessage();
-  const [syncing, setSyncing] = useState(false);
+  const { ready, authenticated, getAccessToken } = usePrivy();
+  const { address } = useSolanaWallet();
   const [hasSession, setHasSession] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const syncAttemptedRef = useRef(false);
 
   useEffect(() => {
     setHasSession(hasActiveSession());
   }, [authenticated, address]);
 
+  useEffect(() => {
+    if (ready && !authenticated) {
+      clearBackendToken();
+      setHasSession(false);
+      setSyncError(null);
+      syncAttemptedRef.current = false;
+    }
+  }, [ready, authenticated]);
+
   const syncSession = useCallback(async () => {
     if (!address) {
+      setSyncError("No Solana wallet on your account.");
       return false;
     }
 
     setSyncing(true);
+    setSyncError(null);
 
     try {
-      const { message } = await fetchLoginNonce(address);
-      const result = await signMessage(
-        { message },
-        { address, uiOptions: { showWalletUIs: true } },
-      );
+      const accessToken = await getAccessToken();
+      if (!accessToken) {
+        setSyncError("Privy session not ready. Refresh and try again.");
+        return false;
+      }
 
-      const signature = encodeSignature(
-        result.signature as Uint8Array | string,
-      );
-
-      await loginWithWallet(address, message, signature);
+      await loginWithPrivy(accessToken, address);
       setHasSession(true);
       return true;
-    } catch {
-      activateFallbackSession();
-      setHasSession(true);
-      return true;
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Could not connect to backend";
+      setSyncError(message);
+      return false;
     } finally {
       setSyncing(false);
     }
-  }, [address, signMessage]);
+  }, [address, getAccessToken]);
+
+  useEffect(() => {
+    if (!ready || !authenticated || !address) return;
+    if (hasActiveSession()) {
+      setHasSession(true);
+      return;
+    }
+    if (syncAttemptedRef.current) return;
+
+    syncAttemptedRef.current = true;
+    void syncSession();
+  }, [ready, authenticated, address, syncSession]);
 
   const logout = useCallback(() => {
     clearBackendToken();
     setHasSession(false);
+    syncAttemptedRef.current = false;
   }, []);
 
   return {
@@ -91,6 +85,7 @@ export function useBackendSession() {
     address,
     hasSession,
     syncing,
+    syncError,
     syncSession,
     logout,
   };

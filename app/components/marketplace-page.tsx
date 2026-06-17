@@ -1,14 +1,16 @@
 import { useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import {
   COMPUTE_CONTRACTS,
   formatRatePerM,
   formatTokenMillions,
   hedgeSavingsPercent,
+  type ComputeContract,
   type ContractType,
 } from "../config/marketplace";
 import { useBackendSession } from "../hooks/use-backend-session";
 import { useDashboard } from "../hooks/use-dashboard";
+import { purchaseComputeContract } from "../lib/api/marketplace";
 import { LoginModal } from "./login-modal";
 
 const TYPE_FILTERS: { id: "all" | ContractType; label: string }[] = [
@@ -20,9 +22,11 @@ const TYPE_FILTERS: { id: "all" | ContractType; label: string }[] = [
 function ContractCard({
   contract,
   userBalance,
+  onPurchase,
 }: {
-  contract: (typeof COMPUTE_CONTRACTS)[number];
+  contract: ComputeContract;
   userBalance?: string;
+  onPurchase: (contract: ComputeContract) => void;
 }) {
   const savings = hedgeSavingsPercent(contract);
 
@@ -101,13 +105,14 @@ function ContractCard({
 
       <div className="mt-auto flex gap-2">
         <Link
-          to="/dashboard"
+          to={`/dashboard?tier=${encodeURIComponent(contract.tier)}`}
           className="pixel-serif flex-1 rounded-xl border border-white/15 bg-white/[0.06] py-3 text-center text-sm text-white transition-colors hover:border-white/30"
         >
           Manage
         </Link>
         <button
           type="button"
+          onClick={() => onPurchase(contract)}
           className="pixel-serif flex-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3 text-sm text-emerald-400 transition-colors hover:border-emerald-500/50"
         >
           Purchase
@@ -117,15 +122,131 @@ function ContractCard({
   );
 }
 
+function PurchaseModal({
+  contract,
+  open,
+  purchasing,
+  error,
+  tokenAmount,
+  onTokenAmountChange,
+  onClose,
+  onConfirm,
+}: {
+  contract: ComputeContract | null;
+  open: boolean;
+  purchasing: boolean;
+  error: string | null;
+  tokenAmount: string;
+  onTokenAmountChange: (value: string) => void;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  if (!open || !contract) return null;
+
+  const estimatedCost =
+    (Number(tokenAmount.replace(/,/g, "")) / 1_000_000) *
+    contract.lockedRatePerM;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Purchase ${contract.name}`}
+    >
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        aria-label="Close"
+        onClick={onClose}
+      />
+      <div className="relative z-10 w-full max-w-md border border-white/15 bg-black p-6 shadow-2xl md:p-8">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="pixel-serif text-xl text-white">{contract.name}</h2>
+            <p className="pixel-sans mt-1 text-xs text-white/50">
+              {contract.tier} · {formatRatePerM(contract.lockedRatePerM)} locked
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-white/60 hover:text-white"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        <label className="pixel-sans block text-xs text-white/50">
+          Token amount (min {formatTokenMillions(contract.minPurchaseTokens)})
+        </label>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={tokenAmount}
+          onChange={(event) =>
+            onTokenAmountChange(event.target.value.replace(/[^\d]/g, ""))
+          }
+          className="pixel-sans mt-2 w-full rounded-xl border border-white/15 bg-black px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none"
+        />
+
+        <p className="pixel-sans mt-3 text-xs text-white/45">
+          Est. cost ~ ${Number.isFinite(estimatedCost) ? estimatedCost.toFixed(2) : "0.00"}{" "}
+          USDC · Expires {contract.expiry}
+        </p>
+
+        {error && (
+          <p className="pixel-sans mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+            {error}
+          </p>
+        )}
+
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={purchasing}
+            className="pixel-serif flex-1 rounded-xl border border-white/15 py-3 text-sm text-white/70 hover:border-white/30 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={purchasing}
+            className="pixel-serif flex-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3 text-sm text-emerald-400 hover:border-emerald-500/50 disabled:opacity-50"
+          >
+            {purchasing ? "Purchasing..." : "Confirm purchase"}
+          </button>
+        </div>
+
+        <p className="pixel-sans mt-4 text-[10px] leading-relaxed text-white/30">
+          Credits your forward compute balance immediately. On-chain settlement
+          integration coming soon.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function MarketplacePage() {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(initialQuery);
   const [typeFilter, setTypeFilter] = useState<"all" | ContractType>("all");
   const [loginOpen, setLoginOpen] = useState(false);
+  const [purchaseTarget, setPurchaseTarget] = useState<ComputeContract | null>(
+    null,
+  );
+  const [tokenAmount, setTokenAmount] = useState("");
+  const [purchasing, setPurchasing] = useState(false);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
+  const [purchaseSuccess, setPurchaseSuccess] = useState<string | null>(null);
 
-  const { authenticated, hasSession } = useBackendSession();
-  const { data } = useDashboard(authenticated && hasSession);
+  const navigate = useNavigate();
+  const { authenticated, hasSession, syncing } = useBackendSession();
+  const { data, refresh } = useDashboard(authenticated && hasSession);
 
   const balanceByTier = useMemo(() => {
     const map = new Map<string, string>();
@@ -152,6 +273,60 @@ export function MarketplacePage() {
       return matchesType && matchesQuery;
     });
   }, [query, typeFilter]);
+
+  const handlePurchaseClick = (contract: ComputeContract) => {
+    if (!authenticated) {
+      setLoginOpen(true);
+      return;
+    }
+
+    if (!hasSession) {
+      setPurchaseError(
+        syncing
+          ? "Connecting to backend — try again in a moment."
+          : "Could not connect to backend. Refresh and sign in again.",
+      );
+      return;
+    }
+
+    setPurchaseError(null);
+    setPurchaseSuccess(null);
+    setPurchaseTarget(contract);
+    setTokenAmount(String(contract.minPurchaseTokens));
+  };
+
+  const handleConfirmPurchase = async () => {
+    if (!purchaseTarget) return;
+
+    const amount = Number(tokenAmount);
+    if (!Number.isFinite(amount) || amount < purchaseTarget.minPurchaseTokens) {
+      setPurchaseError(
+        `Minimum purchase is ${formatTokenMillions(purchaseTarget.minPurchaseTokens)} tokens.`,
+      );
+      return;
+    }
+
+    setPurchasing(true);
+    setPurchaseError(null);
+
+    try {
+      const result = await purchaseComputeContract(
+        purchaseTarget.tier,
+        amount,
+      );
+      await refresh();
+      setPurchaseTarget(null);
+      setPurchaseSuccess(
+        `Purchased ${formatTokenMillions(amount)} tokens on ${purchaseTarget.name}. Balance: ${formatTokenMillions(Number(result.balance.tokenBalanceRemaining))}.`,
+      );
+    } catch (err) {
+      setPurchaseError(
+        err instanceof Error ? err.message : "Purchase failed",
+      );
+    } finally {
+      setPurchasing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -227,7 +402,26 @@ export function MarketplacePage() {
             >
               Connect wallet
             </button>{" "}
-            to see your contract balances on each listing.
+            to purchase contracts and see your balances.
+          </div>
+        )}
+
+        {purchaseSuccess && (
+          <div className="pixel-sans mb-8 flex flex-col gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-300/90 sm:flex-row sm:items-center sm:justify-between">
+            <span>{purchaseSuccess}</span>
+            <button
+              type="button"
+              onClick={() => navigate("/dashboard")}
+              className="text-left text-[#80a0c1] hover:underline sm:text-right"
+            >
+              Open dashboard →
+            </button>
+          </div>
+        )}
+
+        {purchaseError && !purchaseTarget && (
+          <div className="pixel-sans mb-8 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {purchaseError}
           </div>
         )}
 
@@ -241,6 +435,7 @@ export function MarketplacePage() {
                   ? balanceByTier.get(contract.tier) ?? "0"
                   : undefined
               }
+              onPurchase={handlePurchaseClick}
             />
           ))}
         </div>
@@ -293,6 +488,21 @@ export function MarketplacePage() {
       </main>
 
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+
+      <PurchaseModal
+        contract={purchaseTarget}
+        open={purchaseTarget !== null}
+        purchasing={purchasing}
+        error={purchaseError}
+        tokenAmount={tokenAmount}
+        onTokenAmountChange={setTokenAmount}
+        onClose={() => {
+          if (purchasing) return;
+          setPurchaseTarget(null);
+          setPurchaseError(null);
+        }}
+        onConfirm={() => void handleConfirmPurchase()}
+      />
     </div>
   );
 }

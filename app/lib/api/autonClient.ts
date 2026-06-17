@@ -63,7 +63,7 @@ export function logout() {
   sessionStorage.removeItem(FALLBACK_SESSION_KEY);
 }
 
-async function request<T>(
+export async function request<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
@@ -148,7 +148,24 @@ export async function loginWithWallet(
   }
 }
 
+export async function loginWithPrivy(accessToken: string, walletAddress: string) {
+  const result = await request<{ token: string }>("/api/v1/auth/privy", {
+    method: "POST",
+    body: JSON.stringify({ accessToken, walletAddress }),
+  });
+
+  if (result.token) {
+    setToken(result.token);
+  }
+
+  return result;
+}
+
 export async function fetchDashboardStats() {
+  if (getToken()) {
+    return request<DashboardStats>("/api/v1/dashboard/");
+  }
+
   return requestOrFallback<DashboardStats>(
     "/api/v1/dashboard/",
     FALLBACK_DASHBOARD,
@@ -165,7 +182,11 @@ export async function createApiKey(name: string) {
       method: "POST",
       body: JSON.stringify({ name }),
     });
-  } catch {
+  } catch (error) {
+    if (getToken()) {
+      throw error;
+    }
+
     const suffix = Math.random().toString(36).slice(2, 10);
     const key = `auton_sk_${suffix}`;
     return {
@@ -240,6 +261,7 @@ export const autonClient = {
   activateFallbackSession,
   fetchLoginNonce,
   loginWithWallet,
+  loginWithPrivy,
   logout,
   fetchDashboardStats,
   createApiKey,

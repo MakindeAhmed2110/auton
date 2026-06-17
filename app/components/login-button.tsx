@@ -1,14 +1,22 @@
 import { useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
+import { isPrivyConfigured } from "../lib/privy-config";
 import { LoginModal } from "./login-modal";
 
 function truncateAddress(address: string) {
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
 }
 
-export function LoginButton() {
+function LoginButtonInner({ variant = "dark" }: { variant?: "light" | "dark" }) {
   const [open, setOpen] = useState(false);
   const { ready, authenticated, user, logout } = usePrivy();
+  const isLight = variant === "light";
+  const idle = isLight
+    ? "border-black/20 text-black/50"
+    : "border-white/20 text-white/50";
+  const active = isLight
+    ? "border-black/20 text-black hover:border-black/40"
+    : "border-white/20 text-white hover:border-white/40";
 
   const solanaWallet = user?.linkedAccounts?.find(
     (account) =>
@@ -22,7 +30,7 @@ export function LoginButton() {
 
   if (!ready) {
     return (
-      <span className="pixel-serif-logo rounded-lg border border-white/20 px-3 py-2 text-sm text-white/50 md:px-4">
+      <span className={`pixel-serif-logo rounded-lg border px-3 py-2 text-sm md:px-4 ${idle}`}>
         ...
       </span>
     );
@@ -33,7 +41,7 @@ export function LoginButton() {
       <button
         type="button"
         onClick={() => logout()}
-        className="pixel-serif-logo rounded-lg border border-white/20 px-3 py-2 text-sm text-white transition-colors hover:border-white/40 md:px-4"
+        className={`pixel-serif-logo rounded-lg border px-3 py-2 text-sm transition-colors md:px-4 ${active}`}
         title="Log out"
       >
         {walletAddress ? truncateAddress(walletAddress) : "Account"}
@@ -46,11 +54,26 @@ export function LoginButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="pixel-serif-logo rounded-lg border border-white/20 px-3 py-2 text-sm text-white transition-colors hover:border-white/40 md:px-4"
+        className={`pixel-serif-logo rounded-lg border px-3 py-2 text-sm transition-colors md:px-4 ${active}`}
       >
         Login
       </button>
       <LoginModal open={open} onClose={() => setOpen(false)} />
     </>
   );
+}
+
+export function LoginButton({ variant = "dark" }: { variant?: "light" | "dark" }) {
+  if (!isPrivyConfigured) {
+    return (
+      <span
+        className="pixel-serif-logo rounded-lg border border-amber-500/30 px-3 py-2 text-xs text-amber-400/80 md:px-4"
+        title="Set VITE_PRIVY_APP_ID to enable login"
+      >
+        Login
+      </span>
+    );
+  }
+
+  return <LoginButtonInner variant={variant} />;
 }
