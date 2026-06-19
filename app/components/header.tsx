@@ -5,6 +5,7 @@ const TRADE_APP_URL = "https://trade.autonaisol.xyz";
 
 const NAV_LINKS = [
   { label: "Markets", href: TRADE_APP_URL, internal: false },
+  { label: "Chat", href: `${TRADE_APP_URL}/chat`, internal: false },
   { label: "Earn", href: "/earn", internal: true },
   { label: "Dashboard", href: TRADE_APP_URL, internal: false },
   { label: "Docs", href: "https://docs.autonaisol.xyz", internal: false },

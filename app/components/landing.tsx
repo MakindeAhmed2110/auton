@@ -65,6 +65,13 @@ export function Landing() {
                   <ArrowIcon />
                 </a>
                 <a
+                  href="https://trade.autonaisol.xyz/chat"
+                  className="pixel-sans inline-flex items-center justify-center gap-2 rounded-xl border border-black/15 px-6 py-3 text-sm font-medium text-black transition-colors hover:border-black/30"
+                >
+                  Try Chat
+                  <ArrowIcon />
+                </a>
+                <a
                   href="https://docs.autonaisol.xyz"
                   target="_blank"
                   rel="noopener noreferrer"
